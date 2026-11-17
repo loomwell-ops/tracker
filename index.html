@@ -73,7 +73,7 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 <h2>Applications</h2>
 <div class="bar">
 <input type="search" id="q" placeholder="Search title, company or notes"><select id="f"></select>
-<button id="vl" aria-pressed="true">List</button><button id="vb" aria-pressed="false">Board</button>
+<button id="vl" aria-pressed="true">List</button><button id="vb" aria-pressed="false">Board</button><button id="vc" aria-pressed="false">Calendar</button>
 <button class="p" id="add">+ Add job</button><button id="mr">Master resume</button>
 </div>
 <div class="bar"><button id="bk" class="s">Backup (JSON)</button><button id="cv" class="s">Export CSV</button><button id="im" class="s">Import backup</button><button id="dd" class="s" hidden>Delete my cloud data</button><input type="file" id="fi" accept=".json" hidden><span class="note" id="msg"></span></div>
@@ -84,12 +84,15 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 <label>Job title</label><input id="jt" style="width:100%">
 <label>Company</label><input id="jc" style="width:100%">
 <div class="row"><div><label>Pay (optional)</label><input id="jp"></div><div><label>Date applied</label><input id="jd" type="date"></div><div><label>Follow up on</label><input id="jf" type="date"></div></div>
-<label>Posting link</label><input id="jl" style="width:100%">
+<label>Posting link</label><div class="row"><input id="jl" style="flex:1;min-width:0"><button type="button" id="jaf">Auto-fill from link</button></div><span class="note" id="jam"></span>
 <label>Contact person / recruiter</label><input id="jk" style="width:100%">
+<label>Interview date and time (shows in Calendar)</label><input id="ji" type="datetime-local">
+<label>Contact log (who you spoke to, what was said)</label><textarea id="jlg" rows="4"></textarea><div class="row"><button type="button" id="jla">+ Add dated entry</button></div>
 <label>Notes, next steps, interview prep</label><textarea id="jn" rows="4"></textarea>
 <div class="row"><button class="p" id="js">Save</button><button id="jx">Cancel</button><button id="jdel" hidden>Delete</button></div></dialog>
 
 <dialog id="dr"><h3>Master resume</h3>
+<div class="row"><select id="rsel"></select><input id="rnm" placeholder="Version name"><button type="button" id="rnw">New version</button><button type="button" id="rdl">Delete</button></div>
 <p class="note">Paste your full resume once with every role, skill and achievement, or drop a PDF, Word (.docx), or text file onto the box. Tailored versions only use what is written here. Stored in this browser only. Files are read in your browser and are not uploaded.</p>
 <textarea id="rt" rows="16"></textarea>
 <div class="row"><button type="button" id="rf">Choose a file</button><input type="file" id="rff" accept=".pdf,.docx,.txt,.md" hidden><span class="note" id="rst" aria-live="polite"></span></div>
@@ -98,15 +101,18 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 <dialog id="dt"><h3 id="dtt">Tailor</h3>
 <label>Job description (paste the full posting)</label><textarea id="td" rows="6"></textarea>
 <div class="row"><button class="p" id="tg">Tailor resume</button><button class="p" id="tl">Write cover letter</button><button id="ts" disabled>Stop</button><span class="note" id="tn"></span></div>
+<label>Master resume to use</label><select id="tsel"></select>
 <label>Tailored resume (editable)</label><textarea id="to" rows="12"></textarea>
+<label>Notes: keywords matched, gaps, talking points (private, not part of the resume)</label><textarea id="tnt" rows="7"></textarea>
+<label>Extras</label><div class="row"><select id="xk"><option value="m">Match score + missing keywords</option><option value="i">Interview prep</option><option value="f">Follow-up email (no reply)</option><option value="t">Thank-you email (after interview)</option><option value="r">Reply to a rejection</option></select><button class="p" id="xg">Generate</button></div><textarea id="xo" rows="8"></textarea>
 <label>Cover letter (editable)</label><textarea id="cl" rows="9"></textarea>
-<div class="row"><button class="s" id="c1">Copy resume</button><button class="s" id="c2">Copy letter</button><button class="s" id="d1">Download resume</button><button class="s" id="d2">Download letter</button><button class="p" id="tsv">Save to job</button><button id="tx">Close</button></div></dialog>
+<div class="row"><button class="s" id="c1">Copy resume</button><button class="s" id="c2">Copy letter</button><button class="s" id="d1">Download resume</button><button class="s" id="d2">Download letter</button><button class="s p" id="dw">Download Word</button><button class="s p" id="dp">Download PDF</button><button class="p" id="tsv">Save to job</button><button id="tx">Close</button></div></dialog>
 <footer class="note">© 2026 LoomwellOps™. Your data is private to your account. <span id="sy"></span></footer></main>
 <script>
 const CFG={SUPABASE_URL:"https://ywowmewfdaalgoqrimyj.supabase.co",SUPABASE_ANON_KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3b3dtZXdmZGFhbGdvcXJpbXlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4ODk4NjAsImV4cCI6MjExMDQ2NTg2MH0.KXXW61f05PyTD-9Jixl9xJNtvqdXrnnuxB2nEf5V4b0",AI_URL:"https://loomwellops-ai.loomwellops.workers.dev"};
 const ST=["To Apply","Applied","Screening","Interviewing","Assessment","Offer Received","Rejected","Ghosted","Withdrawn"];
 const OPEN=["To Apply","Applied","Screening","Interviewing","Assessment"];
-const K="lw.v3";let S,cur=null,ab=null,sample=null,dl=null,view="list",U=null,sb=null,tm=null;
+let pendJd="";const K="lw.v3";let S,cur=null,ab=null,sample=null,dl=null,view="list",U=null,sb=null,tm=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const today=()=>new Date().toISOString().slice(0,10);
@@ -135,62 +141,120 @@ $("gl").onchange=e=>{S.goal=Math.max(1,+e.target.value||10);save();render()};
 const wks=[5,4,3,2,1,0].map(i=>[i?i+"w ago":"This week",A.filter(a=>Math.floor(days(a.d)/7)===i).length]);
 const src={};A.forEach(a=>{const h=host(a.l);src[h]=(src[h]||0)+1});
 const top=Object.entries(src).sort((a,b)=>b[1]-a[1]).slice(0,5);
+const RP=["Screening","Interviewing","Assessment","Offer Received","Rejected"];
+const rate=g=>{const m={};A.filter(a=>a.s!=="To Apply").forEach(a=>{const k=g(a);(m[k]=m[k]||[0,0]);m[k][0]++;if(RP.includes(a.s))m[k][1]++});return bars(Object.entries(m).filter(e=>e[1][0]).sort((x,y)=>y[1][0]-x[1][0]).slice(0,5).map(e=>[e[0]+" ("+e[1][1]+"/"+e[1][0]+")",Math.round(e[1][1]/e[1][0]*100)]))||'<p class="note">Add applied jobs to see this.</p>'};
 const stt=ST.map(s=>[s,n(s)]).filter(r=>r[1]);
-$("ch").innerHTML=`<div class="panel"><h4>Applications per week</h4>${bars(wks)}</div><div class="panel"><h4>By status</h4>${bars(stt)}</div><div class="panel"><h4>Top job sites</h4>${bars(top)}</div>`;
+$("ch").innerHTML=`<div class="panel"><h4>Applications per week</h4>${bars(wks)}</div><div class="panel"><h4>By status</h4>${bars(stt)}</div><div class="panel"><h4>Top job sites</h4>${bars(top)}</div><div class="panel"><h4>Reply rate by site (%)</h4>${rate(a=>host(a.l))}</div><div class="panel"><h4>Reply rate by resume version (%)</h4>${rate(a=>(RS()[a.ri||0]||{n:"Main"}).n)}</div>`;
 const q=$("q").value.toLowerCase(),f=$("f").value;
 const L=A.filter(a=>(!f||a.s===f)&&(a.t+" "+a.c+" "+(a.n||"")).toLowerCase().includes(q)).sort((a,b)=>b.d.localeCompare(a.d));
-$("vl").setAttribute("aria-pressed",view==="list");$("vb").setAttribute("aria-pressed",view==="board");
-if(view==="board")$("list").innerHTML='<div class="kb">'+ST.map(s=>{const c=L.filter(a=>a.s===s);return`<div class="col" data-s="${s}"><h4>${s}<span>${c.length}</span></h4>${c.map(card).join("")}</div>`}).join("")+"</div>";
+$("vc").setAttribute("aria-pressed",view==="cal");$("vl").setAttribute("aria-pressed",view==="list");$("vb").setAttribute("aria-pressed",view==="board");
+if(view==="cal"){const ev=[];A.forEach(a=>{if(a.i)ev.push([a.i,"Interview",a]);if(a.f&&OPEN.includes(a.s))ev.push([a.f,"Follow up",a])});ev.sort((x,y)=>x[0].localeCompare(y[0]));const t0=today();
+$("list").innerHTML='<div class="row"><button class="s" id="ics">Export .ics (add to phone calendar)</button></div>'+(ev.length?ev.map(e=>`<div class="card" data-id="${e[2].id}"><div><h3>${esc(e[1])}: ${esc(e[2].t)}${e[0].slice(0,10)<t0?'<span class="tag w">Past</span>':e[0].slice(0,10)===t0?'<span class="tag w">Today</span>':""}</h3><small>${esc(e[2].c)} · ${esc(e[0].replace("T"," "))}</small></div><div class="act"><button class="s" data-a="ed">Open</button></div></div>`).join(""):'<p class="note">No dates yet. Add an interview date or follow-up date to a job.</p>');
+const ic=$("ics");if(ic)ic.onclick=()=>{const z=x=>x.replace(/[-:]/g,"").slice(0,15).padEnd(15,"0").replace(/^(.{8})$/,"$1T000000"),L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//LoomwellOps//EN"];ev.forEach(e=>{const d=e[0].includes("T")?z(e[0].length===16?e[0]+":00":e[0]):e[0].replace(/-/g,"");L.push("BEGIN:VEVENT","UID:"+e[2].id+e[1].replace(/\W/g,"")+"@loomwellops","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",e[0].includes("T")?"DTSTART:"+d:"DTSTART;VALUE=DATE:"+d,"SUMMARY:"+e[1]+": "+e[2].t+" @ "+e[2].c,"END:VEVENT")});L.push("END:VCALENDAR");out0("loomwellops-calendar.ics",L.join("\r\n"),"text/calendar")}}
+else if(view==="board")$("list").innerHTML='<div class="kb">'+ST.map(s=>{const c=L.filter(a=>a.s===s);return`<div class="col" data-s="${s}"><h4>${s}<span>${c.length}</span></h4>${c.map(card).join("")}</div>`}).join("")+"</div>";
 else $("list").innerHTML=L.map(card).join("")||'<p class="note">No matches.</p>'}
 $("q").oninput=render;$("f").onchange=render;
-$("vl").onclick=()=>{view="list";render()};$("vb").onclick=()=>{view="board";render()};
+$("vl").onclick=()=>{view="list";render()};$("vb").onclick=()=>{view="board";render()};$("vc").onclick=()=>{view="cal";render()};
 const byId=id=>S.apps.find(x=>x.id===id);
 $("list").onchange=e=>{if(e.target.dataset.a!=="st")return;byId(e.target.closest(".card").dataset.id).s=e.target.value;save();render()};
-$("list").onclick=e=>{const b=e.target.closest("button");if(!b)return;cur=byId(b.closest(".card").dataset.id);b.dataset.a==="ed"?editJob(cur):openTailor(cur)};
+$("list").onclick=e=>{const b=e.target.closest("button");const c=b&&b.closest(".card");if(!c)return;cur=byId(c.dataset.id);b.dataset.a==="ed"?editJob(cur):openTailor(cur)};
 $("list").ondragstart=e=>{const c=e.target.closest(".card");if(c)e.dataTransfer.setData("text",c.dataset.id)};
 $("list").ondragover=e=>{const c=e.target.closest(".col");if(c){e.preventDefault();document.querySelectorAll(".col.over").forEach(x=>x.classList.remove("over"));c.classList.add("over")}};
 $("list").ondrop=e=>{const c=e.target.closest(".col");if(!c)return;e.preventDefault();const a=byId(e.dataTransfer.getData("text"));if(a){a.s=c.dataset.s;save();render()}};
-function editJob(a){cur=a;$("djt").textContent=a?"Edit job":"Add job";[["jt","t"],["jc","c"],["jp","p"],["jl","l"],["jk","k"],["jn","n"],["jf","f"]].forEach(p=>$(p[0]).value=a?.[p[1]]||"");
+function editJob(a){cur=a;$("djt").textContent=a?"Edit job":"Add job";[["jt","t"],["jc","c"],["jp","p"],["jl","l"],["jk","k"],["jn","n"],["jf","f"],["ji","i"],["jlg","lg"]].forEach(p=>$(p[0]).value=a?.[p[1]]||"");pendJd="";$("jam").textContent="";
 $("jd").value=a?.d||today();$("jdel").hidden=!a;$("jdel").textContent="Delete";$("dj").showModal()}
+$("jla").onclick=()=>{const t=$("jlg").value;$("jlg").value=today()+": \n"+t;$("jlg").focus();$("jlg").setSelectionRange(12,12)};
+$("jaf").onclick=async()=>{const u=$("jl").value.trim();if(!u){$("jam").textContent="Paste the posting link first.";return}$("jaf").disabled=true;$("jam").textContent="Reading the posting...";
+try{const tok=(await sb.auth.getSession()).data.session?.access_token;const r=await fetch(CFG.AI_URL,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+tok},body:JSON.stringify({url:u})});const j=await r.json();if(!r.ok)throw new Error(j.error||"Failed ("+r.status+")");
+if(j.title&&!$("jt").value)$("jt").value=j.title;if(j.company&&!$("jc").value)$("jc").value=j.company;if(j.pay&&!$("jp").value)$("jp").value=j.pay;pendJd=j.description||"";$("jam").textContent="Filled in. Check the details, then Save. The description is saved for tailoring."}
+catch(e){$("jam").textContent=e.message||"Could not read that link."}$("jaf").disabled=false};
 $("add").onclick=()=>editJob(null);$("jx").onclick=()=>$("dj").close();
-$("js").onclick=()=>{if(!$("jt").value.trim())return;const v={t:$("jt").value.trim(),c:$("jc").value.trim(),p:$("jp").value.trim(),d:$("jd").value,l:$("jl").value.trim(),k:$("jk").value.trim(),n:$("jn").value,f:$("jf").value};
+$("js").onclick=()=>{if(!$("jt").value.trim())return;const v={t:$("jt").value.trim(),c:$("jc").value.trim(),p:$("jp").value.trim(),d:$("jd").value,l:$("jl").value.trim(),k:$("jk").value.trim(),n:$("jn").value,f:$("jf").value,i:$("ji").value,lg:$("jlg").value};if(pendJd)v.jd=pendJd;
 if(cur)Object.assign(cur,v);else S.apps.push({id:"n"+Date.now(),s:"Applied",jd:"",tr:"",...v});save();render();$("dj").close()};
 $("jdel").onclick=()=>{if($("jdel").textContent==="Delete"){$("jdel").textContent="Click again to confirm";return}S.apps=S.apps.filter(x=>x!==cur);save();render();$("dj").close()};
-$("mr").onclick=()=>{$("rt").value=S.resume;$("dr").showModal()};$("rx").onclick=()=>$("dr").close();
-$("rs").onclick=()=>{S.resume=$("rt").value;save();$("dr").close()};
+const RS=()=>{if(!S.rs||!S.rs.length)S.rs=[{n:"Main",t:S.resume||""}];return S.rs};
+const curRes=()=>(RS()[+$("tsel").value||0]||{t:""}).t;let ri=0;
+function fillRs(){const r=RS();ri=Math.min(ri,r.length-1);$("rsel").innerHTML=r.map((x,i)=>`<option value="${i}">${esc(x.n)}</option>`).join("");$("rsel").value=ri;$("rnm").value=r[ri].n;$("rt").value=r[ri].t}
+function stash(){const r=RS();r[ri].t=$("rt").value;r[ri].n=$("rnm").value.trim()||r[ri].n}
+$("rsel").onchange=()=>{stash();ri=+$("rsel").value;fillRs()};
+$("rnw").onclick=()=>{stash();RS().push({n:"Version "+(RS().length+1),t:""});ri=RS().length-1;fillRs()};
+$("rdl").onclick=()=>{if(RS().length>1&&confirm("Delete this resume version?")){RS().splice(ri,1);ri=0;fillRs()}};
+$("mr").onclick=()=>{ri=0;fillRs();$("dr").showModal()};$("rx").onclick=()=>$("dr").close();
+$("rs").onclick=()=>{stash();S.resume=RS()[0].t;save();$("dr").close()};
 function openTailor(a){$("dtt").textContent=a.t+" @ "+a.c;$("td").value=a.jd||"";$("to").value=a.tr||"";$("cl").value=a.cl||"";
-$("tn").textContent=S.resume.trim()?"":"Add your master resume first (Master resume button).";$("dt").showModal()}
+$("tsel").innerHTML=RS().map((x,i)=>`<option value="${i}">${esc(x.n)}</option>`).join("");$("tsel").value=a.ri<RS().length?a.ri||0:0;$("tnt").value=a.nt||"";$("xo").value="";
+$("tn").textContent=RS().some(x=>x.t.trim())?"":"Add your master resume first (Master resume button).";$("dt").showModal()}
 $("tx").onclick=()=>{ab&&ab.abort();$("dt").close()};$("ts").onclick=()=>ab&&ab.abort();
-async function ask(p,t,sig){
-if(sample)return sample(p,{onText:({text})=>{t.value=text},signal:sig,cache:false});
+async function ask(p,on,sig){
+if(sample)return sample(p,{onText:({text})=>on(text),signal:sig,cache:false});
 const tok=(await sb.auth.getSession()).data.session?.access_token;
 if(!tok)throw{code:"auth",msg:"You are not signed in. Sign out and sign in again."};
-let r;
-try{r=await fetch(CFG.AI_URL,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+tok},body:JSON.stringify({prompt:p}),signal:sig})}
-catch(e){if(e&&e.name==="AbortError")throw{code:"aborted"};throw{code:"network",msg:"Could not reach the AI worker (network or CORS blocked). Check the Worker URL is live and allows this site's origin."}}
+let r;try{r=await fetch(CFG.AI_URL,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+tok},body:JSON.stringify({prompt:p}),signal:sig})}
+catch(e){if(e&&e.name==="AbortError")throw{code:"aborted"};throw{code:"network",msg:"Could not reach the AI worker (network or CORS)."}}
 if(!r.ok){let b="";try{b=(await r.text()).slice(0,300)}catch(e){}throw{code:r.status===429?"rate_limited":"failed",msg:"AI worker returned "+r.status+(b?": "+b:"")}}
-let j;try{j=await r.json()}catch(e){throw{code:"badjson",msg:"AI worker replied with something that is not JSON."}}
-if(!j||typeof j.text!=="string")throw{code:"badjson",msg:"AI worker reply has no 'text' field. Got: "+JSON.stringify(j).slice(0,300)}
-t.value=j.text}
+if((r.headers.get("content-type")||"").includes("text/plain")&&r.body){const rd=r.body.getReader(),dc=new TextDecoder();let acc="";for(;;){const{done,value}=await rd.read();if(done)break;acc+=dc.decode(value,{stream:true});on(acc)}if(!acc.trim())throw{code:"failed",msg:"The AI returned nothing. Try again."};return}
+let j;try{j=await r.json()}catch(e){throw{code:"badjson",msg:"AI worker reply is not JSON."}}
+if(typeof j.text!=="string")throw{code:"badjson",msg:"AI worker reply has no 'text' field."}
+on(j.text)}
 async function gen(kind){
-if(!S.resume.trim()){$("tn").textContent="Add your master resume first.";return}
+if(!curRes().trim()){$("tn").textContent="Add your master resume first.";return}
 if(!$("td").value.trim()){$("tn").textContent="Paste the job description first.";return}
 if(!sample&&!(CFG.AI_URL&&sb)){$("tn").textContent="AI is not set up yet. See the README (AI_URL).";return}
 cur.jd=$("td").value;save();ab=new AbortController();$("tg").disabled=$("tl").disabled=true;$("ts").disabled=false;$("tn").textContent="Generating…";
-const ctx=`JOB: ${cur.t} at ${cur.c}\nJOB DESCRIPTION:\n${$("td").value}\nMASTER RESUME:\n${S.resume}`;
+const ctx=`JOB: ${cur.t} at ${cur.c}\nJOB DESCRIPTION:\n${$("td").value}\nMASTER RESUME:\n${curRes()}`;
 const p=kind==="r"?`You are an expert resume writer. Tailor the MASTER RESUME to the JOB below.
 Rules:
 - Use ONLY facts in the master resume. Never invent employers, titles, dates, metrics, tools or credentials.
 - Reorder and rephrase bullets so the most relevant experience comes first; mirror the job's keywords only where the candidate truly has that experience.
 - Write a 2-3 line summary aimed at this role. ATS-friendly: plain headings, no tables, about one page.
-- Output clean Markdown for the resume. Then add "## Notes" with: keywords matched, honest gaps, and 3 interview talking points.
+- Keep every claim exactly as strong as the master: never add words like "consistently", "expert" or "advanced", never add channels (e.g. email), tools or duties the master does not state, and never relabel a role (a moderator is not technical support).
+- Format: "# FULL NAME", a headline line, a contact line, then "## SECTION" headings, "### Job title" lines with "**Company** | dates" beneath, and "- " bullets. Do not put notes inside the resume.
+- After the resume write a line containing only ===NOTES=== and then the notes: keywords matched, honest gaps, and 3 interview talking points.
 ${ctx}`:`Write a concise, warm cover letter (under 250 words, 3 short paragraphs) for the JOB below, from the candidate in the MASTER RESUME.
 Rules: use ONLY facts from the resume, never invent achievements; connect 2 or 3 real strengths to what the posting asks for; no clichés; plain text; sign off with the candidate's name from the resume.
 ${ctx}`;
-const t=$(kind==="r"?"to":"cl");
-try{await ask(p,t,ab.signal);$("tn").textContent="Done. Review before sending."}
+const on=kind==="r"?(x=>{const k=x.indexOf("===NOTES==="),i=k<0?x:x.slice(0,k);$("to").value=i.trim();if(k>=0)$("tnt").value=x.slice(k+10).trim()}):(x=>{$("cl").value=x});
+try{await ask(p,on,ab.signal);$("tn").textContent="Done. Review before sending."}
 catch(e){console.error("Tailor error:",e);$("tn").textContent=e&&e.code==="not_granted"?"Permission was declined.":e&&e.code==="rate_limited"?"Rate limited. Try again shortly.":e&&e.code==="aborted"?"Stopped.":e&&e.msg?e.msg:"Failed: "+(e&&e.message||"unknown error")}
 $("tg").disabled=$("tl").disabled=false;$("ts").disabled=true}
+const LD=u=>new Promise((ok,no)=>{const e=document.createElement("script");e.src=u;e.onload=ok;e.onerror=()=>no(new Error("load"));document.head.appendChild(e)});
+const mdBlocks=md=>md.split("\n").map(l=>{l=l.replace(/\[([^\]]+)\]\([^)]+\)/g,"$1").replace(/\s+$/,"");let m;
+if(m=l.match(/^#\s+(.*)/))return{k:"n",t:m[1]};
+if(m=l.match(/^##\s+(.*)/))return{k:"h",t:m[1].toUpperCase()};
+if(m=l.match(/^###\s+(.*)/))return{k:"r",t:m[1]};
+if(m=l.match(/^\s*[-*\u2022]\s+(.*)/))return{k:"b",t:m[1]};
+return l.trim()?{k:"p",t:l}:null}).filter(Boolean);
+const mdRuns=t=>t.split(/(\*\*[^*]+\*\*)/).filter(Boolean).map(s=>s.startsWith("**")?{t:s.slice(2,-2),b:1}:{t:s.replace(/\*/g,"")});
+function buildDocx(md,D){const{Document,Paragraph,TextRun,AlignmentType,BorderStyle}=D;let top=true;
+const R=(t,o={})=>mdRuns(t).map(r=>new TextRun({text:r.t,bold:!!(r.b||o.b),size:o.s||21,font:"Calibri"}));
+const ch=mdBlocks(md).map(b=>{if(b.k==="h")top=false;
+if(b.k==="n")return new Paragraph({alignment:AlignmentType.CENTER,children:R(b.t,{b:1,s:32})});
+if(b.k==="h")return new Paragraph({spacing:{before:200,after:60},border:{bottom:{style:BorderStyle.SINGLE,size:6,color:"666666",space:1}},children:R(b.t,{b:1,s:23})});
+if(b.k==="r")return new Paragraph({spacing:{before:100},children:R(b.t,{b:1})});
+if(b.k==="b")return new Paragraph({bullet:{level:0},children:R(b.t)});
+return new Paragraph({alignment:top?AlignmentType.CENTER:AlignmentType.LEFT,spacing:{after:60},children:R(b.t)})});
+return new Document({sections:[{properties:{page:{margin:{top:720,bottom:720,left:864,right:864}}},children:ch}]})}
+function buildPdf(md,J){const d=new J({unit:"pt",format:"letter"}),W=612,M=54,TW=W-2*M;let y=M,top=true;
+const fx=s=>s.replace(/[\u2013\u2014]/g,"-").replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/\u2026/g,"...").replace(/[^\x20-\x7E\u00A0-\u00FF]/g,"");
+function put(rs,o){const sz=o.s||10.5,x0=M+(o.i||0),w=TW-(o.i||0);d.setFontSize(sz);const ws=[];
+rs.forEach(r=>fx(r.t).split(/\s+/).filter(Boolean).forEach(t=>ws.push({t,b:r.b||o.b})));let ln=[],lw=0;
+const flush=()=>{if(!ln.length)return;if(y>792-M){d.addPage();y=M}let x=o.c?(W-lw)/2:x0;ln.forEach(k=>{d.setFont("helvetica",k.b?"bold":"normal");d.text(k.t,x,y);x+=k.w});y+=sz*1.35;ln=[];lw=0};
+ws.forEach(k=>{d.setFont("helvetica",k.b?"bold":"normal");k.w=d.getTextWidth(k.t+" ");if(lw+k.w>w+4&&ln.length)flush();ln.push(k);lw+=k.w});flush()}
+mdBlocks(md).forEach(b=>{const r=mdRuns(b.t);
+if(b.k==="n"){put(r,{s:17,b:1,c:1});y+=2}
+else if(b.k==="h"){top=false;y+=7;put(r,{s:11,b:1});d.setDrawColor(120);d.line(M,y-9,W-M,y-9);y+=1}
+else if(b.k==="r"){y+=3;put(r,{b:1})}
+else if(b.k==="b"){const y0=y;put(r,{i:14});d.setFillColor(0);d.circle(M+4,y0-3.3,1.2,"F")}
+else put(r,{c:top})});
+return d}
+
+$("dw").onclick=async()=>{const m=$("to").value;if(!m.trim()){$("tn").textContent="Tailor a resume first.";return}try{$("tn").textContent="Building Word file...";await LD("https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js");const b=await docx.Packer.toBlob(buildDocx(m,docx));await out(fn("resume.docx"),b,"application/vnd.openxmlformats-officedocument.wordprocessingml.document");$("tn").textContent="Word file downloaded."}catch(e){$("tn").textContent="Could not build the Word file. Use Download resume (.md) instead."}};
+$("dp").onclick=async()=>{const m=$("to").value;if(!m.trim()){$("tn").textContent="Tailor a resume first.";return}try{$("tn").textContent="Building PDF...";await LD("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");await out(fn("resume.pdf"),buildPdf(m,window.jspdf.jsPDF).output("blob"),"application/pdf");$("tn").textContent="PDF downloaded."}catch(e){$("tn").textContent="Could not build the PDF."}};
+$("xg").onclick=async()=>{const k=$("xk").value,res=curRes();if(!res.trim()||!$("td").value.trim()){$("tn").textContent="Need a master resume and the job description.";return}
+const T={m:"Score how well the MASTER RESUME fits the JOB. Reply with: Match score /100, Strong matches, Missing keywords or skills (only ones truly absent from the resume), and a one-line verdict on whether to apply. Max 12 lines.",i:"List 8 likely interview questions for this job, each with a short answer outline using ONLY facts from the resume. Where the resume has a gap, say so and suggest an honest way to answer.",f:"Write a short polite follow-up email (under 90 words, subject line first) for an application sent a week ago with no reply.",t:"Write a short thank-you email (under 120 words, subject line first) after an interview. Use [Interviewer name] as a placeholder and mention 1 or 2 real strengths from the resume.",r:"Write a gracious reply (under 70 words, subject line first) to a rejection, asking to be kept in mind for future roles."}[k];
+$("xg").disabled=true;$("tn").textContent="Generating...";ab=new AbortController();
+try{await ask(T+"\nRules: use ONLY facts in the resume; never invent anything.\nJOB: "+cur.t+" at "+cur.c+"\nJOB DESCRIPTION:\n"+$("td").value+"\nMASTER RESUME:\n"+res,x=>{$("xo").value=x},ab.signal);$("tn").textContent="Done."}
+catch(e){$("tn").textContent=e&&e.msg?e.msg:"Stopped or failed."}$("xg").disabled=false};
 $("tg").onclick=()=>gen("r");$("tl").onclick=()=>gen("c");
 const copy=async id=>{try{await navigator.clipboard.writeText($(id).value);$("tn").textContent="Copied."}catch(e){$(id).select();$("tn").textContent="Press Ctrl/Cmd+C to copy."}};
 $("c1").onclick=()=>copy("to");$("c2").onclick=()=>copy("cl");
@@ -199,12 +263,12 @@ const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=nam
 const out0=out;
 const fn=s=>(cur.c+"-"+cur.t).replace(/[^\w-]+/g,"_")+"-"+s;
 $("d1").onclick=()=>out(fn("resume.md"),$("to").value,"text/markdown");$("d2").onclick=()=>out(fn("cover-letter.txt"),$("cl").value,"text/plain");
-$("tsv").onclick=()=>{cur.tr=$("to").value;cur.cl=$("cl").value;cur.jd=$("td").value;save();render();$("tn").textContent="Saved."};
+$("tsv").onclick=()=>{cur.tr=$("to").value;cur.nt=$("tnt").value;cur.ri=+$("tsel").value||0;cur.cl=$("cl").value;cur.jd=$("td").value;save();render();$("tn").textContent="Saved."};
 $("bk").onclick=()=>out0("job-tracker-backup.json",JSON.stringify(S),"application/json");
 $("cv").onclick=()=>out0("job-applications.csv","Job,Company,Pay,Date,Status,Contact,Link\n"+S.apps.map(a=>[a.t,a.c,a.p,a.d,a.s,a.k,a.l].map(v=>'"'+String(v||"").replace(/"/g,'""')+'"').join(",")).join("\n"),"text/csv");
 $("im").onclick=()=>$("fi").click();
 $("fi").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.apps))throw 0;
-const ids=new Set(S.apps.map(a=>a.id));let c=0;d.apps.forEach(a=>{if(!ids.has(a.id)){S.apps.push(a);c++}});if(!S.resume&&d.resume)S.resume=d.resume;save();render();msg("Imported "+c+" new jobs.")}catch(x){msg("That file is not a valid backup.")}e.target.value=""};
+const ids=new Set(S.apps.map(a=>a.id));let c=0;d.apps.forEach(a=>{if(!ids.has(a.id)){S.apps.push(a);c++}});if(!S.resume&&d.resume)S.resume=d.resume;if(!S.rs&&d.rs)S.rs=d.rs;save();render();msg("Imported "+c+" new jobs.")}catch(x){msg("That file is not a valid backup.")}e.target.value=""};
 async function enter(user){U=user;S=load();
 if(sb){const r=await sb.from("trackers").select("data").eq("user_id",U.id).maybeSingle();if(r.data&&r.data.data)S=r.data.data;else if(r.error)msg("Could not load cloud data. Showing this device's copy.")}
 S.goal=S.goal||10;S.apps=S.apps||[];$("auth").hidden=true;$("app").hidden=false;$("so").hidden=false;$("dd").hidden=false;$("who").textContent=U.email;render()}
