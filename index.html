@@ -48,7 +48,7 @@ button.p{box-shadow:0 6px 22px var(--glow)}button.s{padding:.15rem .75rem;font-s
 .col h4{font-size:.9rem;padding:2px 4px 8px;display:flex;justify-content:space-between}
 .col .card{grid-template-columns:1fr;cursor:grab}.col.over{border-color:var(--accent);box-shadow:0 0 0 2px var(--glow)}
 dialog{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:1rem;width:min(780px,94vw);padding:18px;max-height:92vh}
-dialog::backdrop{background:#0009}dialog h3{font-size:1.2rem;margin-bottom:4px}
+#dr.drag textarea{outline:2px dashed var(--accent,#9c93ff)}dialog::backdrop{background:#0009}dialog h3{font-size:1.2rem;margin-bottom:4px}
 dialog label{display:block;margin:10px 0 4px;font-weight:500;font-size:.88rem}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .note{color:var(--muted);font-size:.88rem}
@@ -90,8 +90,9 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 <div class="row"><button class="p" id="js">Save</button><button id="jx">Cancel</button><button id="jdel" hidden>Delete</button></div></dialog>
 
 <dialog id="dr"><h3>Master resume</h3>
-<p class="note">Paste your full resume once with every role, skill and achievement. Tailored versions only use what is written here. Stored in this browser only.</p>
+<p class="note">Paste your full resume once with every role, skill and achievement, or drop a PDF, Word (.docx), or text file onto the box. Tailored versions only use what is written here. Stored in this browser only. Files are read in your browser and are not uploaded.</p>
 <textarea id="rt" rows="16"></textarea>
+<div class="row"><button type="button" id="rf">Choose a file</button><input type="file" id="rff" accept=".pdf,.docx,.txt,.md" hidden><span class="note" id="rst" aria-live="polite"></span></div>
 <div class="row"><button class="p" id="rs">Save</button><button id="rx">Close</button></div></dialog>
 
 <dialog id="dt"><h3 id="dtt">Tailor</h3>
@@ -217,4 +218,31 @@ $("so").onclick=()=>sb.auth.signOut();
 $("dd").onclick=async()=>{if($("dd").textContent==="Delete my cloud data"){$("dd").textContent="Click again to confirm";return}
 await sb.from("trackers").delete().eq("user_id",U.id);S=blank();try{localStorage.removeItem(key())}catch(e){}$("dd").textContent="Delete my cloud data";render();msg("Cloud data deleted.")}
 }else{$("auth").hidden=true;render()}
-</script></body></html>
+</script><script>
+(function(){var g=function(i){return document.getElementById(i)},ta=g("rt"),st=g("rst"),inp=g("rff"),dlg=g("dr");if(!ta||!dlg)return;
+function say(t){st.textContent=t}
+function load(src){return new Promise(function(ok,no){var s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=function(){no(new Error("load"))};document.head.appendChild(s)})}
+async function pdfText(f){if(!window.pdfjsLib)await load("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+var d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,out=[];
+for(var i=1;i<=d.numPages;i++){var p=await d.getPage(i),c=await p.getTextContent(),line="",y=null;
+c.items.forEach(function(it){var yy=Math.round(it.transform[5]);if(y!==null&&Math.abs(yy-y)>2)line+="\n";line+=it.str+" ";y=yy});out.push(line)}
+return out.join("\n\n")}
+async function take(f){if(!f)return;var n=f.name.toLowerCase(),t="";say("Reading "+f.name+"...");
+try{if(/\.pdf$/.test(n))t=await pdfText(f);
+else if(/\.docx$/.test(n)){if(!window.mammoth)await load("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");t=(await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value}
+else if(/\.(txt|md)$/.test(n))t=await f.text();
+else{say("Use a PDF, Word (.docx), or text file.");return}}
+catch(e){say("Could not read that file. Paste the text instead.");return}
+t=t.replace(/[ \t]+/g," ").replace(/ ?\n ?/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+if(!t){say("No text found. A scanned PDF has no text, so paste it instead.");return}
+if(ta.value.trim()&&!confirm("Replace the text in the box with this file?")){say("Kept your current text.");return}
+ta.value=t;say("Loaded "+f.name+". Check that it looks right, then click Save.")}
+["dragenter","dragover"].forEach(function(ev){dlg.addEventListener(ev,function(e){e.preventDefault();dlg.classList.add("drag")})});
+["dragleave","drop"].forEach(function(ev){dlg.addEventListener(ev,function(e){e.preventDefault();dlg.classList.remove("drag")})});
+dlg.addEventListener("drop",function(e){take(e.dataTransfer&&e.dataTransfer.files[0])});
+g("rf").addEventListener("click",function(){inp.click()});
+inp.addEventListener("change",function(){take(inp.files[0]);inp.value=""});
+g("mr").addEventListener("click",function(){say("")})})();
+</script>
+</body></html>
