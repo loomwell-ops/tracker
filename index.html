@@ -164,9 +164,14 @@ $("tx").onclick=()=>{ab&&ab.abort();$("dt").close()};$("ts").onclick=()=>ab&&ab.
 async function ask(p,t,sig){
 if(sample)return sample(p,{onText:({text})=>{t.value=text},signal:sig,cache:false});
 const tok=(await sb.auth.getSession()).data.session?.access_token;
-const r=await fetch(CFG.AI_URL,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+tok},body:JSON.stringify({prompt:p}),signal:sig});
-if(!r.ok)throw{code:r.status===429?"rate_limited":"failed"};
-t.value=(await r.json()).text}
+if(!tok)throw{code:"auth",msg:"You are not signed in. Sign out and sign in again."};
+let r;
+try{r=await fetch(CFG.AI_URL,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+tok},body:JSON.stringify({prompt:p}),signal:sig})}
+catch(e){if(e&&e.name==="AbortError")throw{code:"aborted"};throw{code:"network",msg:"Could not reach the AI worker (network or CORS blocked). Check the Worker URL is live and allows this site's origin."}}
+if(!r.ok){let b="";try{b=(await r.text()).slice(0,300)}catch(e){}throw{code:r.status===429?"rate_limited":"failed",msg:"AI worker returned "+r.status+(b?": "+b:"")}}
+let j;try{j=await r.json()}catch(e){throw{code:"badjson",msg:"AI worker replied with something that is not JSON."}}
+if(!j||typeof j.text!=="string")throw{code:"badjson",msg:"AI worker reply has no 'text' field. Got: "+JSON.stringify(j).slice(0,300)}
+t.value=j.text}
 async function gen(kind){
 if(!S.resume.trim()){$("tn").textContent="Add your master resume first.";return}
 if(!$("td").value.trim()){$("tn").textContent="Paste the job description first.";return}
@@ -184,7 +189,7 @@ Rules: use ONLY facts from the resume, never invent achievements; connect 2 or 3
 ${ctx}`;
 const t=$(kind==="r"?"to":"cl");
 try{await ask(p,t,ab.signal);$("tn").textContent="Done. Review before sending."}
-catch(e){$("tn").textContent=e&&e.code==="not_granted"?"Permission was declined.":e&&e.code==="rate_limited"?"Rate limited. Try again shortly.":"Stopped or failed."}
+catch(e){console.error("Tailor error:",e);$("tn").textContent=e&&e.code==="not_granted"?"Permission was declined.":e&&e.code==="rate_limited"?"Rate limited. Try again shortly.":e&&e.code==="aborted"?"Stopped.":e&&e.msg?e.msg:"Failed: "+(e&&e.message||"unknown error")}
 $("tg").disabled=$("tl").disabled=false;$("ts").disabled=true}
 $("tg").onclick=()=>gen("r");$("tl").onclick=()=>gen("c");
 const copy=async id=>{try{await navigator.clipboard.writeText($(id).value);$("tn").textContent="Copied."}catch(e){$(id).select();$("tn").textContent="Press Ctrl/Cmd+C to copy."}};
