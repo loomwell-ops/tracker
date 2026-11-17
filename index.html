@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LoomwellOps™ Job Tracker</title><meta name="description" content="LoomwellOps™ Job Tracker: track applications, tailor resumes and write cover letters."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%234b3fd6%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2750%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27 font-weight=%27bold%27%3ELW%3C/text%3E%3C/svg%3E"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f5fd;--surface:#fff;--ink:#1a1840;--muted:#5b5a7d;--line:#dedcf2;--accent:#4b3fd6;--accent-ink:#fff;--mark:#f3c76b;--g2:#c24e17;--glow:rgba(75,63,214,.18);--bgimg:url(bg-light.webp)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13112b;--surface:#1d1a3f;--ink:#ecebfa;--muted:#a8a6cf;--line:#2f2b5e;--accent:#9c93ff;--accent-ink:#13112b;--mark:#c99a2e;--g2:#ff9a76;--glow:rgba(156,147,255,.38);--bgimg:url(bg.jpg)}}
+:root[data-theme="dark"]{--bg:#13112b;--surface:#1d1a3f;--ink:#ecebfa;--muted:#a8a6cf;--line:#2f2b5e;--accent:#9c93ff;--accent-ink:#13112b;--mark:#c99a2e;--g2:#ff9a76;--glow:rgba(156,147,255,.38);--bgimg:url(bg.jpg)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);background-image:radial-gradient(circle at 90% -8%,var(--glow),transparent 42%);background-repeat:no-repeat;color:var(--ink);font:400 1rem/1.55 "IBM Plex Sans",system-ui,sans-serif}
+h1,h2,h3,h4,.chip b{font-family:"Bricolage Grotesque","IBM Plex Sans",sans-serif;line-height:1.15;margin:0}
+a{color:var(--accent)}
+main{max-width:1060px;margin:0 auto;padding:14px 16px 40px}
+nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0 14px}
+nav b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.1rem}
+h1{font-size:clamp(1.7rem,4vw,2.4rem)}
+.grad{color:var(--accent);background:linear-gradient(90deg,var(--accent),var(--g2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+h2::after,h1::after{content:"";display:block;width:3rem;height:4px;border-radius:2px;margin-top:.5rem;background:linear-gradient(90deg,var(--accent),var(--g2))}
+h2{font-size:1.2rem;margin:22px 0 12px}
+input,select,textarea,button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:.5rem;padding:.45rem .7rem}
+textarea{width:100%;resize:vertical}
+button{cursor:pointer;border:2px solid var(--accent);border-radius:2rem;background:transparent;color:var(--accent);font-weight:500;padding:.35rem 1rem}
+button:hover{opacity:.85}button[aria-pressed=true],button.p{background:var(--accent);color:var(--accent-ink)}
+button.p{box-shadow:0 6px 22px var(--glow)}button.s{padding:.15rem .75rem;font-size:.85rem}button:disabled{opacity:.5}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.chip{background:color-mix(in srgb,var(--surface) 76%,transparent);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:.6rem;padding:.7rem 1rem;min-width:100px;transition:transform .2s,border-color .2s,box-shadow .2s}
+.chip b{display:block;font-size:1.6rem;color:var(--accent)}.chip span{color:var(--muted);font-size:.88rem}
+.chip input{width:3.4rem;padding:.1rem .3rem}
+@media (hover:hover){.chip:hover,.card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 10px 28px var(--glow)}}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+.bar input[type=search]{flex:1;min-width:150px}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:.6rem;padding:1rem}
+.panel h4{margin-bottom:8px;font-size:1rem}
+.br{display:grid;grid-template-columns:5.5rem 1fr 1.6rem;gap:8px;align-items:center;font-size:.85rem;margin:4px 0;color:var(--muted)}
+.br i{display:block;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--g2));min-width:3px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:.6rem;padding:.8rem 1rem;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;transition:transform .2s,border-color .2s,box-shadow .2s}
+.card h3{font-size:1rem}.card small{color:var(--muted)}
+.act{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.tag{border-radius:2rem;padding:0 .6rem;font-size:.72rem;font-weight:700;margin-left:6px;border:1px solid var(--accent);color:var(--accent);white-space:nowrap}
+.tag.w{background:var(--mark);border-color:var(--mark);color:#1a1840}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g2);margin-left:6px}
+.kb{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;align-items:flex-start}
+.col{min-width:220px;flex:1 0 220px;background:color-mix(in srgb,var(--accent) 6%,var(--bg));border:1px solid var(--line);border-radius:.7rem;padding:8px;min-height:120px}
+.col h4{font-size:.9rem;padding:2px 4px 8px;display:flex;justify-content:space-between}
+.col .card{grid-template-columns:1fr;cursor:grab}.col.over{border-color:var(--accent);box-shadow:0 0 0 2px var(--glow)}
+dialog{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:1rem;width:min(780px,94vw);padding:18px;max-height:92vh}
+dialog::backdrop{background:#0009}dialog h3{font-size:1.2rem;margin-bottom:4px}
+dialog label{display:block;margin:10px 0 4px;font-weight:500;font-size:.88rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.note{color:var(--muted);font-size:.88rem}
+.bg{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.bg::before{content:"";position:absolute;inset:0;background:var(--bgimg) right top/cover no-repeat}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--bg) 0,transparent 60%),linear-gradient(0deg,var(--bg) 0,transparent 35%)}
+@media(max-width:640px){.bg{opacity:.5}}
+[hidden]{display:none!important}
+#auth{max-width:440px;margin:6vh auto}.brand{font-size:1.25rem}
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
+@media print{nav,.bar,.kb,.bg{display:none}}
+</style></head><body><div class="bg" aria-hidden="true"></div><main>
+<nav><b class="brand grad">LoomwellOps™</b><span class="act"><span class="note" id="who"></span><button id="so" class="s" hidden>Sign out</button><button id="th" class="s" type="button">Theme</button></span></nav>
+<section id="auth" hidden><div class="panel"><h2>Welcome to LoomwellOps™</h2><p class="note">Sign in to track your job applications, tailor resumes and write cover letters. Your data is saved to your account.</p>
+<label>Email</label><input id="ae" type="email" autocomplete="email" style="width:100%">
+<label>Password (8+ characters)</label><input id="ap" type="password" autocomplete="current-password" style="width:100%">
+<div class="row"><button class="p" id="ain">Sign in</button><button id="aup">Create account</button><button class="s" id="afg">Forgot password</button></div><p class="note" id="am" role="status"></p></div></section>
+<div id="app">
+<h1><span class="grad">Job Tracker</span> + Resume Tailor</h1>
+<div class="stats" id="stats"></div>
+<div class="charts" id="ch"></div>
+<h2>Applications</h2>
+<div class="bar">
+<input type="search" id="q" placeholder="Search title, company or notes"><select id="f"></select>
+<button id="vl" aria-pressed="true">List</button><button id="vb" aria-pressed="false">Board</button>
+<button class="p" id="add">+ Add job</button><button id="mr">Master resume</button>
+</div>
+<div class="bar"><button id="bk" class="s">Backup (JSON)</button><button id="cv" class="s">Export CSV</button><button id="im" class="s">Import backup</button><button id="dd" class="s" hidden>Delete my cloud data</button><input type="file" id="fi" accept=".json" hidden><span class="note" id="msg"></span></div>
+<div id="list"></div>
+
+</div>
+<dialog id="dj"><h3 id="djt">Add job</h3>
+<label>Job title</label><input id="jt" style="width:100%">
+<label>Company</label><input id="jc" style="width:100%">
+<div class="row"><div><label>Pay (optional)</label><input id="jp"></div><div><label>Date applied</label><input id="jd" type="date"></div><div><label>Follow up on</label><input id="jf" type="date"></div></div>
+<label>Posting link</label><input id="jl" style="width:100%">
+<label>Contact person / recruiter</label><input id="jk" style="width:100%">
+<label>Notes, next steps, interview prep</label><textarea id="jn" rows="4"></textarea>
+<div class="row"><button class="p" id="js">Save</button><button id="jx">Cancel</button><button id="jdel" hidden>Delete</button></div></dialog>
+
+<dialog id="dr"><h3>Master resume</h3>
+<p class="note">Paste your full resume once with every role, skill and achievement. Tailored versions only use what is written here. Stored in this browser only.</p>
+<textarea id="rt" rows="16"></textarea>
+<div class="row"><button class="p" id="rs">Save</button><button id="rx">Close</button></div></dialog>
+
+<dialog id="dt"><h3 id="dtt">Tailor</h3>
+<label>Job description (paste the full posting)</label><textarea id="td" rows="6"></textarea>
+<div class="row"><button class="p" id="tg">Tailor resume</button><button class="p" id="tl">Write cover letter</button><button id="ts" disabled>Stop</button><span class="note" id="tn"></span></div>
+<label>Tailored resume (editable)</label><textarea id="to" rows="12"></textarea>
+<label>Cover letter (editable)</label><textarea id="cl" rows="9"></textarea>
+<div class="row"><button class="s" id="c1">Copy resume</button><button class="s" id="c2">Copy letter</button><button class="s" id="d1">Download resume</button><button class="s" id="d2">Download letter</button><button class="p" id="tsv">Save to job</button><button id="tx">Close</button></div></dialog>
+<footer class="note">© 2026 LoomwellOps™. Your data is private to your account. <span id="sy"></span></footer></main>
+<script>
+const CFG={SUPABASE_URL:"",SUPABASE_ANON_KEY:"",AI_URL:""};
+const ST=["To Apply","Applied","Screening","Interviewing","Assessment","Offer Received","Rejected","Ghosted","Withdrawn"];
+const OPEN=["To Apply","Applied","Screening","Interviewing","Assessment"];
+const K="lw.v3";let S,cur=null,ab=null,sample=null,dl=null,view="list",U=null,sb=null,tm=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+const blank=()=>({resume:"",goal:10,apps:[]});
+const key=()=>K+(U?"."+U.id:"");
+function load(){try{const r=localStorage.getItem(key());if(r)return JSON.parse(r)}catch(e){}return blank()}
+function save(){try{localStorage.setItem(key(),JSON.stringify(S))}catch(e){}
+if(sb&&U){clearTimeout(tm);$("sy").textContent="Saving…";tm=setTimeout(async()=>{const r=await sb.from("trackers").upsert({user_id:U.id,data:S,updated_at:new Date().toISOString()});$("sy").textContent=r.error?"Sync failed. Changes are saved on this device.":"Synced"},700)}}
+function msg(t){$("msg").textContent=t;setTimeout(()=>{if($("msg").textContent===t)$("msg").textContent=""},4000)}
+S=load();S.goal=S.goal||10;
+if(window.claude){claude.use("sample").then(x=>sample=x).catch(()=>{});claude.use("downloads").then(x=>dl=x).catch(()=>{})}
+const days=d=>Math.floor((Date.now()-new Date(d+"T00:00:00"))/864e5);
+const host=l=>{try{const h=new URL(l).hostname.split(".");return h[h.length-2]||"other"}catch(e){return"other"}};
+$("f").innerHTML='<option value="">All statuses</option>'+ST.map(s=>`<option>${s}</option>`).join("");
+$("th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark"};
+function bars(rows){const m=Math.max(1,...rows.map(r=>r[1]));return rows.map(r=>`<div class="br"><span>${esc(r[0])}</span><i style="width:${r[1]/m*100}%"></i><b>${r[1]}</b></div>`).join("")}
+function card(a){const age=days(a.d),old=a.s==="Applied"&&age>=14,gh=old&&age>=30,dup=S.apps.filter(x=>x.c===a.c).length,due=a.f&&a.f<=today()&&OPEN.includes(a.s);
+return`<div class="card" data-id="${a.id}" ${view==="board"?'draggable="true"':""}><div><h3>${esc(a.t)}${a.tr?'<span class="dot" title="Tailored resume saved"></span>':""}${gh?'<span class="tag w">Ghosted? '+age+'d</span>':old?'<span class="tag w">Follow up · '+age+'d</span>':""}${due?'<span class="tag w">Due</span>':""}${dup>1?'<span class="tag">'+dup+' roles here</span>':""}</h3><small>${esc(a.c)} · ${esc(a.d)}${a.p?" · "+esc(a.p):""}${a.k?" · "+esc(a.k):""}</small></div>
+<div class="act"><select data-a="st">${ST.map(s=>`<option${s===a.s?" selected":""}>${s}</option>`).join("")}</select><button class="s p" data-a="tl">Tailor</button><button class="s" data-a="ed">Edit</button>${a.l?`<a class="note" href="${esc(a.l)}" target="_blank" rel="noopener noreferrer">Link</a>`:""}</div></div>`}
+function render(){
+const A=S.apps,n=s=>A.filter(a=>a.s===s).length,tot=A.length;
+const resp=A.filter(a=>["Screening","Interviewing","Assessment","Offer Received","Rejected"].includes(a.s)).length;
+const fu=A.filter(a=>a.s==="Applied"&&days(a.d)>=14).length,wk=A.filter(a=>days(a.d)<7).length;
+$("stats").innerHTML=[["Total",tot],["Interviewing",n("Interviewing")],["Offers",n("Offer Received")],["Response rate",tot?Math.round(resp/tot*100)+"%":"0%"],["Need follow-up",fu]].map(x=>`<div class="chip"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("")+`<div class="chip"><b>${wk}/<input id="gl" type="number" min="1" value="${S.goal}" aria-label="Weekly goal"></b><span>Applied this week (goal)</span></div>`;
+$("gl").onchange=e=>{S.goal=Math.max(1,+e.target.value||10);save();render()};
+const wks=[5,4,3,2,1,0].map(i=>[i?i+"w ago":"This week",A.filter(a=>Math.floor(days(a.d)/7)===i).length]);
+const src={};A.forEach(a=>{const h=host(a.l);src[h]=(src[h]||0)+1});
+const top=Object.entries(src).sort((a,b)=>b[1]-a[1]).slice(0,5);
+const stt=ST.map(s=>[s,n(s)]).filter(r=>r[1]);
+$("ch").innerHTML=`<div class="panel"><h4>Applications per week</h4>${bars(wks)}</div><div class="panel"><h4>By status</h4>${bars(stt)}</div><div class="panel"><h4>Top job sites</h4>${bars(top)}</div>`;
+const q=$("q").value.toLowerCase(),f=$("f").value;
+const L=A.filter(a=>(!f||a.s===f)&&(a.t+" "+a.c+" "+(a.n||"")).toLowerCase().includes(q)).sort((a,b)=>b.d.localeCompare(a.d));
+$("vl").setAttribute("aria-pressed",view==="list");$("vb").setAttribute("aria-pressed",view==="board");
+if(view==="board")$("list").innerHTML='<div class="kb">'+ST.map(s=>{const c=L.filter(a=>a.s===s);return`<div class="col" data-s="${s}"><h4>${s}<span>${c.length}</span></h4>${c.map(card).join("")}</div>`}).join("")+"</div>";
+else $("list").innerHTML=L.map(card).join("")||'<p class="note">No matches.</p>'}
+$("q").oninput=render;$("f").onchange=render;
+$("vl").onclick=()=>{view="list";render()};$("vb").onclick=()=>{view="board";render()};
+const byId=id=>S.apps.find(x=>x.id===id);
+$("list").onchange=e=>{if(e.target.dataset.a!=="st")return;byId(e.target.closest(".card").dataset.id).s=e.target.value;save();render()};
+$("list").onclick=e=>{const b=e.target.closest("button");if(!b)return;cur=byId(b.closest(".card").dataset.id);b.dataset.a==="ed"?editJob(cur):openTailor(cur)};
+$("list").ondragstart=e=>{const c=e.target.closest(".card");if(c)e.dataTransfer.setData("text",c.dataset.id)};
+$("list").ondragover=e=>{const c=e.target.closest(".col");if(c){e.preventDefault();document.querySelectorAll(".col.over").forEach(x=>x.classList.remove("over"));c.classList.add("over")}};
+$("list").ondrop=e=>{const c=e.target.closest(".col");if(!c)return;e.preventDefault();const a=byId(e.dataTransfer.getData("text"));if(a){a.s=c.dataset.s;save();render()}};
+function editJob(a){cur=a;$("djt").textContent=a?"Edit job":"Add job";[["jt","t"],["jc","c"],["jp","p"],["jl","l"],["jk","k"],["jn","n"],["jf","f"]].forEach(p=>$(p[0]).value=a?.[p[1]]||"");
+$("jd").value=a?.d||today();$("jdel").hidden=!a;$("jdel").textContent="Delete";$("dj").showModal()}
+$("add").onclick=()=>editJob(null);$("jx").onclick=()=>$("dj").close();
+$("js").onclick=()=>{if(!$("jt").value.trim())return;const v={t:$("jt").value.trim(),c:$("jc").value.trim(),p:$("jp").value.trim(),d:$("jd").value,l:$("jl").value.trim(),k:$("jk").value.trim(),n:$("jn").value,f:$("jf").value};
+if(cur)Object.assign(cur,v);else S.apps.push({id:"n"+Date.now(),s:"Applied",jd:"",tr:"",...v});save();render();$("dj").close()};
+$("jdel").onclick=()=>{if($("jdel").textContent==="Delete"){$("jdel").textContent="Click again to confirm";return}S.apps=S.apps.filter(x=>x!==cur);save();render();$("dj").close()};
+$("mr").onclick=()=>{$("rt").value=S.resume;$("dr").showModal()};$("rx").onclick=()=>$("dr").close();
+$("rs").onclick=()=>{S.resume=$("rt").value;save();$("dr").close()};
+function openTailor(a){$("dtt").textContent=a.t+" @ "+a.c;$("td").value=a.jd||"";$("to").value=a.tr||"";$("cl").value=a.cl||"";
+$("tn").textContent=S.resume.trim()?"":"Add your master resume first (Master resume button).";$("dt").showModal()}
+$("tx").onclick=()=>{ab&&ab.abort();$("dt").close()};$("ts").onclick=()=>ab&&ab.abort();
+async function ask(p,t,sig){
+if(sample)return sample(p,{onText:({text})=>{t.value=text},signal:sig,cache:false});
+const tok=(await sb.auth.getSession()).data.session?.access_token;
+const r=await fetch(CFG.AI_URL,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+tok},body:JSON.stringify({prompt:p}),signal:sig});
+if(!r.ok)throw{code:r.status===429?"rate_limited":"failed"};
+t.value=(await r.json()).text}
+async function gen(kind){
+if(!S.resume.trim()){$("tn").textContent="Add your master resume first.";return}
+if(!$("td").value.trim()){$("tn").textContent="Paste the job description first.";return}
+if(!sample&&!(CFG.AI_URL&&sb)){$("tn").textContent="AI is not set up yet. See the README (AI_URL).";return}
+cur.jd=$("td").value;save();ab=new AbortController();$("tg").disabled=$("tl").disabled=true;$("ts").disabled=false;$("tn").textContent="Generating…";
+const ctx=`JOB: ${cur.t} at ${cur.c}\nJOB DESCRIPTION:\n${$("td").value}\nMASTER RESUME:\n${S.resume}`;
+const p=kind==="r"?`You are an expert resume writer. Tailor the MASTER RESUME to the JOB below.
+Rules:
+- Use ONLY facts in the master resume. Never invent employers, titles, dates, metrics, tools or credentials.
+- Reorder and rephrase bullets so the most relevant experience comes first; mirror the job's keywords only where the candidate truly has that experience.
+- Write a 2-3 line summary aimed at this role. ATS-friendly: plain headings, no tables, about one page.
+- Output clean Markdown for the resume. Then add "## Notes" with: keywords matched, honest gaps, and 3 interview talking points.
+${ctx}`:`Write a concise, warm cover letter (under 250 words, 3 short paragraphs) for the JOB below, from the candidate in the MASTER RESUME.
+Rules: use ONLY facts from the resume, never invent achievements; connect 2 or 3 real strengths to what the posting asks for; no clichés; plain text; sign off with the candidate's name from the resume.
+${ctx}`;
+const t=$(kind==="r"?"to":"cl");
+try{await ask(p,t,ab.signal);$("tn").textContent="Done. Review before sending."}
+catch(e){$("tn").textContent=e&&e.code==="not_granted"?"Permission was declined.":e&&e.code==="rate_limited"?"Rate limited. Try again shortly.":"Stopped or failed."}
+$("tg").disabled=$("tl").disabled=false;$("ts").disabled=true}
+$("tg").onclick=()=>gen("r");$("tl").onclick=()=>gen("c");
+const copy=async id=>{try{await navigator.clipboard.writeText($(id).value);$("tn").textContent="Copied."}catch(e){$(id).select();$("tn").textContent="Press Ctrl/Cmd+C to copy."}};
+$("c1").onclick=()=>copy("to");$("c2").onclick=()=>copy("cl");
+async function out(name,text,type){const b=new Blob([text],{type});if(dl){try{await dl.save({filename:name,data:b})}catch(e){}return}
+const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1e3)}
+const out0=out;
+const fn=s=>(cur.c+"-"+cur.t).replace(/[^\w-]+/g,"_")+"-"+s;
+$("d1").onclick=()=>out(fn("resume.md"),$("to").value,"text/markdown");$("d2").onclick=()=>out(fn("cover-letter.txt"),$("cl").value,"text/plain");
+$("tsv").onclick=()=>{cur.tr=$("to").value;cur.cl=$("cl").value;cur.jd=$("td").value;save();render();$("tn").textContent="Saved."};
+$("bk").onclick=()=>out0("job-tracker-backup.json",JSON.stringify(S),"application/json");
+$("cv").onclick=()=>out0("job-applications.csv","Job,Company,Pay,Date,Status,Contact,Link\n"+S.apps.map(a=>[a.t,a.c,a.p,a.d,a.s,a.k,a.l].map(v=>'"'+String(v||"").replace(/"/g,'""')+'"').join(",")).join("\n"),"text/csv");
+$("im").onclick=()=>$("fi").click();
+$("fi").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.apps))throw 0;
+const ids=new Set(S.apps.map(a=>a.id));let c=0;d.apps.forEach(a=>{if(!ids.has(a.id)){S.apps.push(a);c++}});if(!S.resume&&d.resume)S.resume=d.resume;save();render();msg("Imported "+c+" new jobs.")}catch(x){msg("That file is not a valid backup.")}e.target.value=""};
+async function enter(user){U=user;S=load();
+if(sb){const r=await sb.from("trackers").select("data").eq("user_id",U.id).maybeSingle();if(r.data&&r.data.data)S=r.data.data;else if(r.error)msg("Could not load cloud data. Showing this device's copy.")}
+S.goal=S.goal||10;S.apps=S.apps||[];$("auth").hidden=true;$("app").hidden=false;$("so").hidden=false;$("dd").hidden=false;$("who").textContent=U.email;render()}
+if(CFG.SUPABASE_URL&&window.supabase){
+sb=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);$("app").hidden=true;$("auth").hidden=false;
+sb.auth.onAuthStateChange((ev,s)=>{setTimeout(()=>{
+if(ev==="PASSWORD_RECOVERY"){const np=prompt("Enter a new password (8+ characters)");if(np&&np.length>=8)sb.auth.updateUser({password:np})}
+if(s&&s.user){if(!U||U.id!==s.user.id)enter(s.user)}
+else if(U){U=null;S=blank();$("app").hidden=true;$("auth").hidden=false;$("so").hidden=true;$("dd").hidden=true;$("who").textContent=""}},0)});
+const go=async m=>{const email=$("ae").value.trim(),pw=$("ap").value;if(!email||pw.length<8){$("am").textContent="Enter your email and a password of at least 8 characters.";return}
+$("am").textContent="Please wait…";const r=m==="in"?await sb.auth.signInWithPassword({email,password:pw}):await sb.auth.signUp({email,password:pw});
+$("am").textContent=r.error?r.error.message:m==="up"&&!r.data.session?"Check your email to confirm your account, then sign in.":""};
+$("ain").onclick=()=>go("in");$("aup").onclick=()=>go("up");
+$("afg").onclick=async()=>{const email=$("ae").value.trim();if(!email){$("am").textContent="Enter your email first.";return}const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});$("am").textContent=r.error?r.error.message:"Password reset email sent."};
+$("so").onclick=()=>sb.auth.signOut();
+$("dd").onclick=async()=>{if($("dd").textContent==="Delete my cloud data"){$("dd").textContent="Click again to confirm";return}
+await sb.from("trackers").delete().eq("user_id",U.id);S=blank();try{localStorage.removeItem(key())}catch(e){}$("dd").textContent="Delete my cloud data";render();msg("Cloud data deleted.")}
+}else{$("auth").hidden=true;render()}
+</script></body></html>
