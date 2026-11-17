@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>LoomwellOps™ Job Tracker</title><meta name="description" content="LoomwellOps™ Job Tracker: track applications, tailor resumes and write cover letters."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%234b3fd6%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2750%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27 font-weight=%27bold%27%3ELW%3C/text%3E%3C/svg%3E"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<title>LoomwellOps™ Job Tracker</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#4b3fd6"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="description" content="LoomwellOps™ Job Tracker: track applications, tailor resumes and write cover letters."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%234b3fd6%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2750%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27 font-weight=%27bold%27%3ELW%3C/text%3E%3C/svg%3E"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -60,12 +61,16 @@ dialog label{display:block;margin:10px 0 4px;font-weight:500;font-size:.88rem}
 #auth{max-width:440px;margin:6vh auto}.brand{font-size:1.25rem}
 footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 @media print{nav,.bar,.kb,.bg{display:none}}
+#demobar{padding:.6rem 1rem;background:color-mix(in srgb,var(--accent,#9c93ff) 20%,var(--bg));border-bottom:1px solid var(--line);font-size:.9rem;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}#demobar[hidden]{display:none}#msg:not(:empty){position:fixed;left:50%;transform:translateX(-50%);bottom:1.2rem;max-width:90vw;background:var(--surface);color:var(--ink);border:1px solid var(--accent,#9c93ff);padding:.6rem 1rem;border-radius:.7rem;box-shadow:0 8px 24px #0006;z-index:60}
+.empty{padding:1.2rem;border:1px dashed var(--line);border-radius:.8rem;color:var(--muted)}.empty b{color:var(--ink)}
 </style></head><body><div class="bg" aria-hidden="true"></div><main>
 <nav><b class="brand grad">LoomwellOps™</b><span class="act"><span class="note" id="who"></span><button id="so" class="s" hidden>Sign out</button><button id="th" class="s" type="button">Theme</button></span></nav>
 <section id="auth" hidden><div class="panel"><h2>Welcome to LoomwellOps™</h2><p class="note">Sign in to track your job applications, tailor resumes and write cover letters. Your data is saved to your account.</p>
 <label>Email</label><input id="ae" type="email" autocomplete="email" style="width:100%">
 <label>Password (8+ characters)</label><input id="ap" type="password" autocomplete="current-password" style="width:100%">
-<div class="row"><button class="p" id="ain">Sign in</button><button id="aup">Create account</button><button class="s" id="afg">Forgot password</button></div><p class="note" id="am" role="status"></p></div></section>
+<label class="note" style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="spw"> Show password</label>
+<div class="row"><button class="p" id="ain">Sign in</button><button id="aup">Create account</button><button class="s" id="afg">Forgot password</button><button type="button" id="demo">Try the demo</button></div><p class="note" id="am" role="status"></p><p class="note">New here? The demo shows sample data. Nothing is saved and the AI tools are off.</p></div></section>
+<div id="demobar" hidden role="status">Demo mode: sample data only, nothing is saved, and the AI tools are off. <button type="button" id="demox">Exit demo</button></div>
 <div id="app">
 <h1><span class="grad">Job Tracker</span> + Resume Tailor</h1>
 <div class="stats" id="stats"></div>
@@ -152,7 +157,7 @@ if(view==="cal"){const ev=[];A.forEach(a=>{if(a.i)ev.push([a.i,"Interview",a]);i
 $("list").innerHTML='<div class="row"><button class="s" id="ics">Export .ics (add to phone calendar)</button></div>'+(ev.length?ev.map(e=>`<div class="card" data-id="${e[2].id}"><div><h3>${esc(e[1])}: ${esc(e[2].t)}${e[0].slice(0,10)<t0?'<span class="tag w">Past</span>':e[0].slice(0,10)===t0?'<span class="tag w">Today</span>':""}</h3><small>${esc(e[2].c)} · ${esc(e[0].replace("T"," "))}</small></div><div class="act"><button class="s" data-a="ed">Open</button></div></div>`).join(""):'<p class="note">No dates yet. Add an interview date or follow-up date to a job.</p>');
 const ic=$("ics");if(ic)ic.onclick=()=>{const z=x=>x.replace(/[-:]/g,"").slice(0,15).padEnd(15,"0").replace(/^(.{8})$/,"$1T000000"),L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//LoomwellOps//EN"];ev.forEach(e=>{const d=e[0].includes("T")?z(e[0].length===16?e[0]+":00":e[0]):e[0].replace(/-/g,"");L.push("BEGIN:VEVENT","UID:"+e[2].id+e[1].replace(/\W/g,"")+"@loomwellops","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",e[0].includes("T")?"DTSTART:"+d:"DTSTART;VALUE=DATE:"+d,"SUMMARY:"+e[1]+": "+e[2].t+" @ "+e[2].c,"END:VEVENT")});L.push("END:VCALENDAR");out0("loomwellops-calendar.ics",L.join("\r\n"),"text/calendar")}}
 else if(view==="board")$("list").innerHTML='<div class="kb">'+ST.map(s=>{const c=L.filter(a=>a.s===s);return`<div class="col" data-s="${s}"><h4>${s}<span>${c.length}</span></h4>${c.map(card).join("")}</div>`}).join("")+"</div>";
-else $("list").innerHTML=L.map(card).join("")||'<p class="note">No matches.</p>'}
+else $("list").innerHTML=L.map(card).join("")||(S.apps.length?'<p class="note">No matches.</p>':'<div class="empty"><b>Your tracker is empty.</b><p>Start with <b>Master resume</b> (paste or drop your resume), then click <b>+ Add job</b> for your first application. You can also import a backup file.</p></div>')}
 $("q").oninput=render;$("f").onchange=render;
 $("vl").onclick=()=>{view="list";render()};$("vb").onclick=()=>{view="board";render()};$("vc").onclick=()=>{view="cal";render()};
 const byId=id=>S.apps.find(x=>x.id===id);
@@ -313,5 +318,25 @@ dlg.addEventListener("drop",function(e){take(e.dataTransfer&&e.dataTransfer.file
 g("rf").addEventListener("click",function(){inp.click()});
 inp.addEventListener("change",function(){take(inp.files[0]);inp.value=""});
 g("mr").addEventListener("click",function(){say("")})})();
+</script>
+<script>
+(function(){var g=function(i){return document.getElementById(i)},pw=g("spw");
+if(pw)pw.addEventListener("change",function(){g("ap").type=pw.checked?"text":"password"});
+var btn=g("demo");if(!btn)return;
+function iso(n){var d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+btn.addEventListener("click",function(){
+var rf=window.fetch;window.fetch=function(u){if(typeof u==="string"&&CFG.AI_URL&&u.indexOf(CFG.AI_URL)===0)return Promise.resolve(new Response(JSON.stringify({error:"The AI tools are off in the demo. Create a free account to use them."}),{status:403,headers:{"content-type":"application/json"}}));return rf.apply(this,arguments)};
+save=function(){};U=null;
+S={resume:"Sample master resume (demo). After you create a free account, paste or drop your own resume here.",goal:5,apps:[
+{id:"d1",s:"Interviewing",t:"GoHighLevel Automation Specialist",c:"Brightpath Fitness (sample)",p:"$12/hr",d:iso(-9),f:iso(2),i:iso(3)+"T10:00",k:"Maya, recruiter",n:"Prepare two example follow-up workflows.",lg:"",jd:"",tr:"",l:""},
+{id:"d2",s:"Screening",t:"Executive Assistant",c:"Northline Logistics (sample)",p:"$9/hr",d:iso(-6),f:iso(1),k:"",n:"",lg:"",jd:"",tr:"",l:"",i:""},
+{id:"d3",s:"Applied",t:"Virtual Assistant, Lead Follow-Up",c:"Harbor Dental Group (sample)",p:"",d:iso(-12),f:iso(-1),k:"",n:"No reply yet. Send a short follow-up.",lg:"",jd:"",tr:"",l:"",i:""},
+{id:"d4",s:"Applied",t:"Operations Support",c:"Summit Auto Wraps (sample)",p:"",d:iso(-3),f:iso(4),k:"",n:"",lg:"",jd:"",tr:"",l:"",i:""},
+{id:"d5",s:"To Apply",t:"CRM Administrator",c:"Clearview Realty (sample)",p:"",d:"",f:"",k:"",n:"Tailor the resume first.",lg:"",jd:"",tr:"",l:"",i:""},
+{id:"d6",s:"Offer Received",t:"Social Media Manager",c:"Palm & Pine Studio (sample)",p:"$1,500/mo",d:iso(-20),f:"",k:"",n:"Reply by Friday.",lg:"",jd:"",tr:"",l:"",i:""},
+{id:"d7",s:"Rejected",t:"Admin Assistant",c:"Redwood Clinic (sample)",p:"",d:iso(-18),f:"",k:"",n:"",lg:"",jd:"",tr:"",l:"",i:""},
+{id:"d8",s:"Ghosted",t:"Customer Success Associate",c:"Lumen Software (sample)",p:"",d:iso(-30),f:"",k:"",n:"",lg:"",jd:"",tr:"",l:"",i:""}]};
+g("auth").hidden=true;g("app").hidden=false;g("who").textContent="Demo";g("demobar").hidden=false;render()});
+g("demox").addEventListener("click",function(){location.reload()})})();
 </script>
 </body></html>
