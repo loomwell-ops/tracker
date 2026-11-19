@@ -63,6 +63,7 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 @media print{nav,.bar,.kb,.bg{display:none}}
 #demobar{padding:.6rem 1rem;background:color-mix(in srgb,var(--accent,#9c93ff) 20%,var(--bg));border-bottom:1px solid var(--line);font-size:.9rem;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}#demobar[hidden]{display:none}#msg:not(:empty){position:fixed;left:50%;transform:translateX(-50%);bottom:1.2rem;max-width:90vw;background:var(--surface);color:var(--ink);border:1px solid var(--accent,#9c93ff);padding:.6rem 1rem;border-radius:.7rem;box-shadow:0 8px 24px #0006;z-index:60}
 .empty{padding:1.2rem;border:1px dashed var(--line);border-radius:.8rem;color:var(--muted)}.empty b{color:var(--ink)}
+#app{padding-bottom:4.5rem}#add{font-size:1.05rem;font-weight:700;padding:.7rem 1.3rem;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#9c93ff) 40%,transparent),0 6px 18px #0005}#addf{position:fixed;right:1.1rem;bottom:1.1rem;z-index:40;font-size:1.05rem;font-weight:700;padding:.85rem 1.4rem;border-radius:2rem;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#9c93ff) 40%,transparent),0 10px 28px #0007}@media(prefers-reduced-motion:no-preference){#addf{animation:pulse 2.4s ease-out 3}@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent,#9c93ff) 70%,transparent),0 10px 28px #0007}70%{box-shadow:0 0 0 14px transparent,0 10px 28px #0007}100%{box-shadow:0 0 0 0 transparent,0 10px 28px #0007}}}
 </style></head><body><div class="bg" aria-hidden="true"></div><main>
 <nav><b class="brand grad">LoomwellOps™</b><span class="act"><span class="note" id="who"></span><button id="so" class="s" hidden>Sign out</button><button id="th" class="s" type="button">Theme</button></span></nav>
 <section id="auth" hidden><div class="panel"><h2>Welcome to LoomwellOps™</h2><p class="note">Sign in to track your job applications, tailor resumes and write cover letters. Your data is saved to your account.</p>
@@ -72,6 +73,7 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 <div class="row"><button class="p" id="ain">Sign in</button><button id="aup">Create account</button><button class="s" id="afg">Forgot password</button><button type="button" id="demo">Try the demo</button></div><p class="note" id="am" role="status"></p><p class="note">New here? The demo shows sample data. Nothing is saved and the AI tools are off.</p></div></section>
 <div id="demobar" hidden role="status">Demo mode: sample data only, nothing is saved, and the AI tools are off. <button type="button" id="demox">Exit demo</button></div>
 <div id="app">
+<button type="button" id="addf" class="p">+ Add job</button>
 <h1><span class="grad">Job Tracker</span> + Resume Tailor</h1>
 <div class="stats" id="stats"></div>
 <div class="charts" id="ch"></div>
@@ -115,6 +117,7 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 <footer class="note">© 2026 LoomwellOps™. Your data is private to your account. <span id="sy"></span></footer></main>
 <script>
 const CFG={SUPABASE_URL:"https://ywowmewfdaalgoqrimyj.supabase.co",SUPABASE_ANON_KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3b3dtZXdmZGFhbGdvcXJpbXlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4ODk4NjAsImV4cCI6MjExMDQ2NTg2MH0.KXXW61f05PyTD-9Jixl9xJNtvqdXrnnuxB2nEf5V4b0",AI_URL:"https://loomwellops-ai.loomwellops.workers.dev"};
+function fixUrl(u){u=String(u||"").trim().replace(/\s+/g,"");if(!u)return"";if(/^[a-z][a-z0-9+.-]*:/i.test(u))return/^https?:/i.test(u)?u:"";return/^[\w-]+(\.[\w-]+)+/.test(u)?"https://"+u.replace(/^\/+/,""):""}
 const ST=["To Apply","Applied","Screening","Interviewing","Assessment","Offer Received","Rejected","Ghosted","Withdrawn"];
 const OPEN=["To Apply","Applied","Screening","Interviewing","Assessment"];
 let pendJd="";const K="lw.v3";let S,cur=null,ab=null,sample=null,dl=null,view="list",U=null,sb=null,tm=null;
@@ -130,13 +133,13 @@ function msg(t){$("msg").textContent=t;setTimeout(()=>{if($("msg").textContent==
 S=load();S.goal=S.goal||10;
 if(window.claude){claude.use("sample").then(x=>sample=x).catch(()=>{});claude.use("downloads").then(x=>dl=x).catch(()=>{})}
 const days=d=>Math.floor((Date.now()-new Date(d+"T00:00:00"))/864e5);
-const host=l=>{try{const h=new URL(l).hostname.split(".");return h[h.length-2]||"other"}catch(e){return"other"}};
+const host=l=>{try{const h=new URL(fixUrl(l)).hostname.split(".");return h[h.length-2]||"other"}catch(e){return"other"}};
 $("f").innerHTML='<option value="">All statuses</option>'+ST.map(s=>`<option>${s}</option>`).join("");
 $("th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark"};
 function bars(rows){const m=Math.max(1,...rows.map(r=>r[1]));return rows.map(r=>`<div class="br"><span>${esc(r[0])}</span><i style="width:${r[1]/m*100}%"></i><b>${r[1]}</b></div>`).join("")}
 function card(a){const age=days(a.d),old=a.s==="Applied"&&age>=14,gh=old&&age>=30,dup=S.apps.filter(x=>x.c===a.c).length,due=a.f&&a.f<=today()&&OPEN.includes(a.s);
 return`<div class="card" data-id="${a.id}" ${view==="board"?'draggable="true"':""}><div><h3>${esc(a.t)}${a.tr?'<span class="dot" title="Tailored resume saved"></span>':""}${gh?'<span class="tag w">Ghosted? '+age+'d</span>':old?'<span class="tag w">Follow up · '+age+'d</span>':""}${due?'<span class="tag w">Due</span>':""}${dup>1?'<span class="tag">'+dup+' roles here</span>':""}</h3><small>${esc(a.c)} · ${esc(a.d)}${a.p?" · "+esc(a.p):""}${a.k?" · "+esc(a.k):""}</small></div>
-<div class="act"><select data-a="st">${ST.map(s=>`<option${s===a.s?" selected":""}>${s}</option>`).join("")}</select><button class="s p" data-a="tl">Tailor</button><button class="s" data-a="ed">Edit</button>${a.l?`<a class="note" href="${esc(a.l)}" target="_blank" rel="noopener noreferrer">Link</a>`:""}</div></div>`}
+<div class="act"><select data-a="st">${ST.map(s=>`<option${s===a.s?" selected":""}>${s}</option>`).join("")}</select><button class="s p" data-a="tl">Tailor</button><button class="s" data-a="ed">Edit</button>${fixUrl(a.l)?`<a class="note" href="${esc(fixUrl(a.l))}" target="_blank" rel="noopener noreferrer">Link</a>`:""}</div></div>`}
 function render(){
 const A=S.apps,n=s=>A.filter(a=>a.s===s).length,tot=A.length;
 const resp=A.filter(a=>["Screening","Interviewing","Assessment","Offer Received","Rejected"].includes(a.s)).length;
@@ -169,12 +172,12 @@ $("list").ondrop=e=>{const c=e.target.closest(".col");if(!c)return;e.preventDefa
 function editJob(a){cur=a;$("djt").textContent=a?"Edit job":"Add job";[["jt","t"],["jc","c"],["jp","p"],["jl","l"],["jk","k"],["jn","n"],["jf","f"],["ji","i"],["jlg","lg"]].forEach(p=>$(p[0]).value=a?.[p[1]]||"");pendJd="";$("jam").textContent="";
 $("jd").value=a?.d||today();$("jdel").hidden=!a;$("jdel").textContent="Delete";$("dj").showModal()}
 $("jla").onclick=()=>{const t=$("jlg").value;$("jlg").value=today()+": \n"+t;$("jlg").focus();$("jlg").setSelectionRange(12,12)};
-$("jaf").onclick=async()=>{const u=$("jl").value.trim();if(!u){$("jam").textContent="Paste the posting link first.";return}$("jaf").disabled=true;$("jam").textContent="Reading the posting...";
+$("jaf").onclick=async()=>{const u=fixUrl($("jl").value);if(!u){$("jam").textContent="Paste the full posting link first (it should start with https://).";return}$("jl").value=u;$("jaf").disabled=true;$("jam").textContent="Reading the posting...";
 try{const tok=(await sb.auth.getSession()).data.session?.access_token;const r=await fetch(CFG.AI_URL,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+tok},body:JSON.stringify({url:u})});const j=await r.json();if(!r.ok)throw new Error(j.error||"Failed ("+r.status+")");
 if(j.title&&!$("jt").value)$("jt").value=j.title;if(j.company&&!$("jc").value)$("jc").value=j.company;if(j.pay&&!$("jp").value)$("jp").value=j.pay;pendJd=j.description||"";$("jam").textContent="Filled in. Check the details, then Save. The description is saved for tailoring."}
-catch(e){$("jam").textContent=e.message||"Could not read that link."}$("jaf").disabled=false};
+catch(e){const m=e.message||"Could not read that link.";$("jam").textContent=/limit|sign in|Unauthorized/i.test(m)?m:m+" Some sites (LinkedIn, Indeed, OnlineJobs) block automatic reading. You can still save the link and paste the description when you tailor."}$("jaf").disabled=false};
 $("add").onclick=()=>editJob(null);$("jx").onclick=()=>$("dj").close();
-$("js").onclick=()=>{if(!$("jt").value.trim())return;const v={t:$("jt").value.trim(),c:$("jc").value.trim(),p:$("jp").value.trim(),d:$("jd").value,l:$("jl").value.trim(),k:$("jk").value.trim(),n:$("jn").value,f:$("jf").value,i:$("ji").value,lg:$("jlg").value};if(pendJd)v.jd=pendJd;
+$("js").onclick=()=>{if(!$("jt").value.trim())return;const v={t:$("jt").value.trim(),c:$("jc").value.trim(),p:$("jp").value.trim(),d:$("jd").value,l:fixUrl($("jl").value)||$("jl").value.trim(),k:$("jk").value.trim(),n:$("jn").value,f:$("jf").value,i:$("ji").value,lg:$("jlg").value};if(pendJd)v.jd=pendJd;
 if(cur)Object.assign(cur,v);else S.apps.push({id:"n"+Date.now(),s:"Applied",jd:"",tr:"",...v});save();render();$("dj").close()};
 $("jdel").onclick=()=>{if($("jdel").textContent==="Delete"){$("jdel").textContent="Click again to confirm";return}S.apps=S.apps.filter(x=>x!==cur);save();render();$("dj").close()};
 const RS=()=>{if(!S.rs||!S.rs.length)S.rs=[{n:"Main",t:S.resume||""}];return S.rs};
@@ -284,7 +287,7 @@ if(ev==="PASSWORD_RECOVERY"){const np=prompt("Enter a new password (8+ character
 if(s&&s.user){if(!U||U.id!==s.user.id)enter(s.user)}
 else if(U){U=null;S=blank();$("app").hidden=true;$("auth").hidden=false;$("so").hidden=true;$("dd").hidden=true;$("who").textContent=""}},0)});
 const go=async m=>{const email=$("ae").value.trim(),pw=$("ap").value;if(!email||pw.length<8){$("am").textContent="Enter your email and a password of at least 8 characters.";return}
-$("am").textContent="Please wait…";const r=m==="in"?await sb.auth.signInWithPassword({email,password:pw}):await sb.auth.signUp({email,password:pw});
+$("am").textContent="Please wait…";const r=m==="in"?await sb.auth.signInWithPassword({email,password:pw}):await sb.auth.signUp({email,password:pw,options:{emailRedirectTo:location.href.split("#")[0]}});
 $("am").textContent=r.error?r.error.message:m==="up"&&!r.data.session?"Check your email to confirm your account, then sign in.":""};
 $("ain").onclick=()=>go("in");$("aup").onclick=()=>go("up");
 $("afg").onclick=async()=>{const email=$("ae").value.trim();if(!email){$("am").textContent="Enter your email first.";return}const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});$("am").textContent=r.error?r.error.message:"Password reset email sent."};
@@ -339,4 +342,5 @@ S={resume:"Sample master resume (demo). After you create a free account, paste o
 g("auth").hidden=true;g("app").hidden=false;g("who").textContent="Demo";g("demobar").hidden=false;render()});
 g("demox").addEventListener("click",function(){location.reload()})})();
 </script>
+<script>document.getElementById("addf").addEventListener("click",function(){editJob(null)});</script>
 </body></html>
