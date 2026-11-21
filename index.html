@@ -64,8 +64,71 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 #demobar{padding:.6rem 1rem;background:color-mix(in srgb,var(--accent,#9c93ff) 20%,var(--bg));border-bottom:1px solid var(--line);font-size:.9rem;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}#demobar[hidden]{display:none}#msg:not(:empty){position:fixed;left:50%;transform:translateX(-50%);bottom:1.2rem;max-width:90vw;background:var(--surface);color:var(--ink);border:1px solid var(--accent,#9c93ff);padding:.6rem 1rem;border-radius:.7rem;box-shadow:0 8px 24px #0006;z-index:60}
 .empty{padding:1.2rem;border:1px dashed var(--line);border-radius:.8rem;color:var(--muted)}.empty b{color:var(--ink)}
 #app{padding-bottom:4.5rem}#add{font-size:1.05rem;font-weight:700;padding:.7rem 1.3rem;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#9c93ff) 40%,transparent),0 6px 18px #0005}#addf{position:fixed;right:1.1rem;bottom:1.1rem;z-index:40;font-size:1.05rem;font-weight:700;padding:.85rem 1.4rem;border-radius:2rem;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#9c93ff) 40%,transparent),0 10px 28px #0007}@media(prefers-reduced-motion:no-preference){#addf{animation:pulse 2.4s ease-out 3}@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent,#9c93ff) 70%,transparent),0 10px 28px #0007}70%{box-shadow:0 0 0 14px transparent,0 10px 28px #0007}100%{box-shadow:0 0 0 0 transparent,0 10px 28px #0007}}}
+</style><style>
+:root{--blur:18px;--gl:rgba(255,255,255,.6);--gl2:rgba(255,255,255,.35);--gb:rgba(255,255,255,.9);--sh:0 12px 40px rgba(75,63,214,.14);--pill:#1a1840;--pill-ink:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--gl:rgba(255,255,255,.08);--gl2:rgba(255,255,255,.04);--gb:rgba(255,255,255,.15);--sh:0 14px 48px rgba(0,0,0,.4);--pill:#fff;--pill-ink:#13112b}}
+:root[data-theme="dark"]{--gl:rgba(255,255,255,.08);--gl2:rgba(255,255,255,.04);--gb:rgba(255,255,255,.15);--sh:0 14px 48px rgba(0,0,0,.4);--pill:#fff;--pill-ink:#13112b}
+main{max-width:1180px}
+.bg::after{background:linear-gradient(90deg,var(--bg) 0,transparent 40%),linear-gradient(0deg,var(--bg) 0,transparent 25%)}
+.top,.chip,.panel,.dock,dialog{background:var(--gl);border:1px solid var(--gb);box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.14);-webkit-backdrop-filter:blur(var(--blur)) saturate(1.5);backdrop-filter:blur(var(--blur)) saturate(1.5)}
+.top{position:sticky;top:8px;z-index:30;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-radius:26px;padding:8px 12px;margin:0 0 14px}
+.brand{display:flex;align-items:center;gap:10px;flex:1;font-size:1.05rem}
+.brand i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--pill);color:var(--pill-ink);font:700 .8rem "Bricolage Grotesque",sans-serif}
+.brand b{font-family:"Bricolage Grotesque",sans-serif}
+.tr{flex:1;display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.tr .note{max-width:14ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gs{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted)}
+.gs input{width:72px;padding:0;border:0;background:none;accent-color:var(--pill)}
+.tabs{position:relative;display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--gl2);border:1px solid var(--gb)}
+.tabs button{position:relative;z-index:1;border:0;background:none;box-shadow:none;color:var(--muted);padding:.4rem 1rem;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--pill-ink)}
+.tabs i{position:absolute;top:4px;bottom:4px;left:0;border-radius:999px;background:var(--pill);box-shadow:0 4px 16px rgba(0,0,0,.25);transition:transform .45s cubic-bezier(.3,1.25,.4,1),width .45s cubic-bezier(.3,1.25,.4,1)}
+button{border:1px solid var(--gb);background:var(--gl2);color:var(--ink);border-radius:999px}
+button[aria-pressed=true],button.p{background:var(--pill);color:var(--pill-ink);border-color:transparent;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+input,select,textarea{background:color-mix(in srgb,var(--ink) 7%,transparent);border:1px solid var(--gb);border-radius:14px}
+select option{background:var(--surface);color:var(--ink)}
+#app{position:relative;isolation:isolate;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:22px;padding:clamp(14px,2.6vw,30px);border-radius:32px;border:1px solid var(--gb)}
+#app::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--gl2);-webkit-backdrop-filter:blur(var(--blur));backdrop-filter:blur(var(--blur))}
+#app>*{grid-column:2}#app>.dock{grid-column:1;grid-row:1/span 12}
+.dock{position:sticky;top:96px;align-self:start;display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:24px}
+.dock button{position:relative;display:grid;place-items:center;width:42px;height:42px;padding:0;border:0;background:none;box-shadow:none;color:var(--muted)}
+.dock button:hover{background:var(--gl2);color:var(--ink);opacity:1}
+.dock button::after{content:attr(data-tip);position:absolute;left:52px;top:50%;translate:0 -50%;white-space:nowrap;font-size:.78rem;padding:.2rem .6rem;border-radius:8px;background:var(--pill);color:var(--pill-ink);opacity:0;pointer-events:none;transition:opacity .15s}
+.dock button:hover::after,.dock button:focus-visible::after{opacity:1}
+.dock svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:6px 0 18px}
+.hd h1{font-size:clamp(2rem,5vw,3rem);font-weight:500;letter-spacing:-.02em}h1::after{display:none}.hd p{margin:.3rem 0 0}
+.chip{border-radius:20px;padding:1rem 1.2rem;flex:1 1 150px}.chip b{font-size:2rem;font-weight:500;color:var(--ink)}
+.panel{border-radius:22px;padding:1.1rem 1.2rem}
+.charts{grid-template-columns:repeat(6,1fr)}#ch .panel{grid-column:span 2}#ch .s4{grid-column:span 4}#ch .s3{grid-column:span 3}
+.ring{position:relative;width:140px;aspect-ratio:1;margin:10px auto;display:grid;place-items:center}
+.ring::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--pill) calc(var(--p)*1%),color-mix(in srgb,var(--ink) 12%,transparent) 0);-webkit-mask:radial-gradient(farthest-side,#0000 calc(100% - 11px),#000 calc(100% - 10px));mask:radial-gradient(farthest-side,#0000 calc(100% - 11px),#000 calc(100% - 10px))}
+.ring b{font:500 1.9rem "Bricolage Grotesque",sans-serif}
+.vb{display:flex;gap:10px;height:170px}.vb>div{flex:1;display:grid;grid-template-rows:1fr auto;gap:6px;min-width:0}
+.vb .t{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px}
+.vb i{width:min(100%,38px);height:max(4px,calc((100% - 22px)*var(--r)));border-radius:10px 10px 4px 4px;background:linear-gradient(0deg,var(--accent),var(--g2))}
+.vb span{font-size:.7rem;color:var(--muted);text-align:center;line-height:1.1}
+.rw{display:grid;grid-template-columns:1fr auto;gap:1px 12px;padding:.55rem .6rem;border-radius:14px;cursor:pointer}.rw:hover{background:var(--gl2)}
+.rw b{font-weight:500}.rw small{grid-column:1;color:var(--muted)}.rw .tag{grid-row:1/span 2;grid-column:2;align-self:center}
+.col{background:var(--gl2);border:1px solid var(--gb);border-radius:22px;padding:10px}
+.card{background:var(--gl);border:1px solid var(--gb);border-left:3px solid var(--accent);border-radius:18px;box-shadow:none}
+.card[data-st=Interviewing],.card[data-st=Screening],.card[data-st=Assessment]{border-left-color:var(--mark)}
+.card[data-st="Offer Received"]{border-left-color:#5ad6a0}
+.card[data-st=Rejected],.card[data-st=Ghosted],.card[data-st=Withdrawn]{border-left-color:var(--muted)}
+@media (hover:hover){.chip:hover,.card:hover{box-shadow:0 12px 30px var(--glow)}}
+dialog{border-radius:28px;color:var(--ink);background:color-mix(in srgb,var(--bg) 72%,transparent)}
+dialog::backdrop{background:rgba(8,6,24,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+body:not([data-view=ov]) :is(#stats,#ch){display:none}
+body[data-view=ov] :is(.tools,#list){display:none}
+body:has(#app[hidden]) :is(.tabs,.gs){display:none}
+@media(min-width:821px){#addf{display:none}}
+@media(max-width:820px){.dock,#hadd,.gs{display:none}#app{display:block;padding-bottom:5rem}.tabs{order:3;flex:1 0 100%;overflow-x:auto}.charts{grid-template-columns:1fr}#ch .panel{grid-column:auto!important}}
+@media(prefers-reduced-motion:reduce){.tabs i{transition:none}}
+@media print{.top,.dock{display:none}}
 </style></head><body><div class="bg" aria-hidden="true"></div><main>
-<nav><b class="brand grad">LoomwellOps™</b><span class="act"><span class="note" id="who"></span><button id="so" class="s" hidden>Sign out</button><button id="th" class="s" type="button">Theme</button></span></nav>
+<header class="top"><span class="brand"><i>LW</i><b>LoomwellOps™</b></span>
+<div class="tabs" role="tablist" aria-label="Views"><i id="ind"></i><button type="button" role="tab" data-v="ov">Overview</button><button type="button" role="tab" data-v="list">Applications</button><button type="button" role="tab" data-v="board">Pipeline</button><button type="button" role="tab" data-v="cal">Schedule</button></div>
+<div class="tr"><label class="gs">Glass <input type="range" id="glx" min="0" max="36" value="18" aria-label="Adjust glass blur"></label><span class="note" id="who"></span><button id="so" class="s" hidden>Sign out</button><button id="th" class="s" type="button">Theme</button></div></header>
 <section id="auth" hidden><div class="panel"><h2>Welcome to LoomwellOps™</h2><p class="note">Sign in to track your job applications, tailor resumes and write cover letters. Your data is saved to your account.</p>
 <label>Email</label><input id="ae" type="email" autocomplete="email" style="width:100%">
 <label>Password (8+ characters)</label><input id="ap" type="password" autocomplete="current-password" style="width:100%">
@@ -73,14 +136,13 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
 <div class="row"><button class="p" id="ain">Sign in</button><button id="aup">Create account</button><button class="s" id="afg">Forgot password</button><button type="button" id="demo">Try the demo</button></div><p class="note" id="am" role="status"></p><p class="note">New here? The demo shows sample data. Nothing is saved and the AI tools are off.</p></div></section>
 <div id="demobar" hidden role="status">Demo mode: sample data only, nothing is saved, and the AI tools are off. <button type="button" id="demox">Exit demo</button></div>
 <div id="app">
-<button type="button" id="addf" class="p">+ Add job</button>
-<h1><span class="grad">Job Tracker</span> + Resume Tailor</h1>
+<button type="button" id="addf" class="p">+ Add job</button><aside class="dock" aria-label="Quick actions"><button type="button" data-k="s" data-tip="Search" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.3-4.3"/></svg></button><button type="button" data-k="r" data-tip="Master resume" aria-label="Master resume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg></button><button type="button" data-k="c" data-tip="Schedule" aria-label="Schedule"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button><button type="button" data-k="b" data-tip="Download backup" aria-label="Download backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14"/></svg></button></aside>
+<div class="hd"><div><h1 id="pt">Overview</h1><p class="note" id="ps"></p></div><button type="button" class="p" id="hadd">+ Add job</button></div>
 <div class="stats" id="stats"></div>
 <div class="charts" id="ch"></div>
-<h2>Applications</h2>
-<div class="bar">
+<div class="bar tools">
 <input type="search" id="q" placeholder="Search title, company or notes"><select id="f"></select>
-<button id="vl" aria-pressed="true">List</button><button id="vb" aria-pressed="false">Board</button><button id="vc" aria-pressed="false">Calendar</button>
+<button id="vl" aria-pressed="true" hidden>List</button><button id="vb" aria-pressed="false" hidden>Board</button><button id="vc" aria-pressed="false" hidden>Calendar</button>
 <button class="p" id="add">+ Add job</button><button id="mr">Master resume</button>
 </div>
 <div class="bar"><button id="bk" class="s">Backup (JSON)</button><button id="cv" class="s">Export CSV</button><button id="im" class="s">Import backup</button><button id="dd" class="s" hidden>Delete my cloud data</button><input type="file" id="fi" accept=".json" hidden><span class="note" id="msg"></span></div>
@@ -120,7 +182,7 @@ const CFG={SUPABASE_URL:"https://ywowmewfdaalgoqrimyj.supabase.co",SUPABASE_ANON
 function fixUrl(u){u=String(u||"").trim().replace(/\s+/g,"");if(!u)return"";if(/^[a-z][a-z0-9+.-]*:/i.test(u))return/^https?:/i.test(u)?u:"";return/^[\w-]+(\.[\w-]+)+/.test(u)?"https://"+u.replace(/^\/+/,""):""}
 const ST=["To Apply","Applied","Screening","Interviewing","Assessment","Offer Received","Rejected","Ghosted","Withdrawn"];
 const OPEN=["To Apply","Applied","Screening","Interviewing","Assessment"];
-let pendJd="";const K="lw.v3";let S,cur=null,ab=null,sample=null,dl=null,view="list",U=null,sb=null,tm=null;
+let pendJd="";const K="lw.v3";let S,cur=null,ab=null,sample=null,dl=null,view="ov",U=null,sb=null,tm=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const today=()=>new Date().toISOString().slice(0,10);
@@ -136,23 +198,24 @@ const days=d=>Math.floor((Date.now()-new Date(d+"T00:00:00"))/864e5);
 const host=l=>{try{const h=new URL(fixUrl(l)).hostname.split(".");return h[h.length-2]||"other"}catch(e){return"other"}};
 $("f").innerHTML='<option value="">All statuses</option>'+ST.map(s=>`<option>${s}</option>`).join("");
 $("th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark"};
+function vbars(rows){const m=Math.max(1,...rows.map(r=>r[1]));return'<div class="vb">'+rows.map(r=>`<div><div class="t"><b>${r[1]}</b><i style="--r:${r[1]/m}"></i></div><span>${esc(r[0])}</span></div>`).join("")+'</div>'}
 function bars(rows){const m=Math.max(1,...rows.map(r=>r[1]));return rows.map(r=>`<div class="br"><span>${esc(r[0])}</span><i style="width:${r[1]/m*100}%"></i><b>${r[1]}</b></div>`).join("")}
 function card(a){const age=days(a.d),old=a.s==="Applied"&&age>=14,gh=old&&age>=30,dup=S.apps.filter(x=>x.c===a.c).length,due=a.f&&a.f<=today()&&OPEN.includes(a.s);
-return`<div class="card" data-id="${a.id}" ${view==="board"?'draggable="true"':""}><div><h3>${esc(a.t)}${a.tr?'<span class="dot" title="Tailored resume saved"></span>':""}${gh?'<span class="tag w">Ghosted? '+age+'d</span>':old?'<span class="tag w">Follow up · '+age+'d</span>':""}${due?'<span class="tag w">Due</span>':""}${dup>1?'<span class="tag">'+dup+' roles here</span>':""}</h3><small>${esc(a.c)} · ${esc(a.d)}${a.p?" · "+esc(a.p):""}${a.k?" · "+esc(a.k):""}</small></div>
+return`<div class="card" data-id="${a.id}" data-st="${esc(a.s)}" ${view==="board"?'draggable="true"':""}><div><h3>${esc(a.t)}${a.tr?'<span class="dot" title="Tailored resume saved"></span>':""}${gh?'<span class="tag w">Ghosted? '+age+'d</span>':old?'<span class="tag w">Follow up · '+age+'d</span>':""}${due?'<span class="tag w">Due</span>':""}${dup>1?'<span class="tag">'+dup+' roles here</span>':""}</h3><small>${esc(a.c)} · ${esc(a.d)}${a.p?" · "+esc(a.p):""}${a.k?" · "+esc(a.k):""}</small></div>
 <div class="act"><select data-a="st">${ST.map(s=>`<option${s===a.s?" selected":""}>${s}</option>`).join("")}</select><button class="s p" data-a="tl">Tailor</button><button class="s" data-a="ed">Edit</button>${fixUrl(a.l)?`<a class="note" href="${esc(fixUrl(a.l))}" target="_blank" rel="noopener noreferrer">Link</a>`:""}</div></div>`}
 function render(){
 const A=S.apps,n=s=>A.filter(a=>a.s===s).length,tot=A.length;
 const resp=A.filter(a=>["Screening","Interviewing","Assessment","Offer Received","Rejected"].includes(a.s)).length;
 const fu=A.filter(a=>a.s==="Applied"&&days(a.d)>=14).length,wk=A.filter(a=>days(a.d)<7).length;
-$("stats").innerHTML=[["Total",tot],["Interviewing",n("Interviewing")],["Offers",n("Offer Received")],["Response rate",tot?Math.round(resp/tot*100)+"%":"0%"],["Need follow-up",fu]].map(x=>`<div class="chip"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("")+`<div class="chip"><b>${wk}/<input id="gl" type="number" min="1" value="${S.goal}" aria-label="Weekly goal"></b><span>Applied this week (goal)</span></div>`;
+$("stats").innerHTML=[["Total",tot],["Interviewing",n("Interviewing")],["Offers",n("Offer Received")],["Need follow-up",fu]].map(x=>`<div class="chip"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("")+`<div class="chip"><b>${wk}/<input id="gl" type="number" min="1" value="${S.goal}" aria-label="Weekly goal"></b><span>Applied this week (goal)</span></div>`;
 $("gl").onchange=e=>{S.goal=Math.max(1,+e.target.value||10);save();render()};
-const wks=[5,4,3,2,1,0].map(i=>[i?i+"w ago":"This week",A.filter(a=>Math.floor(days(a.d)/7)===i).length]);
+const rp=tot?Math.round(resp/tot*100):0;const wks=[5,4,3,2,1,0].map(i=>[i?i+"w ago":"This week",A.filter(a=>Math.floor(days(a.d)/7)===i).length]);
 const src={};A.forEach(a=>{const h=host(a.l);src[h]=(src[h]||0)+1});
 const top=Object.entries(src).sort((a,b)=>b[1]-a[1]).slice(0,5);
 const RP=["Screening","Interviewing","Assessment","Offer Received","Rejected"];
 const rate=g=>{const m={};A.filter(a=>a.s!=="To Apply").forEach(a=>{const k=g(a);(m[k]=m[k]||[0,0]);m[k][0]++;if(RP.includes(a.s))m[k][1]++});return bars(Object.entries(m).filter(e=>e[1][0]).sort((x,y)=>y[1][0]-x[1][0]).slice(0,5).map(e=>[e[0]+" ("+e[1][1]+"/"+e[1][0]+")",Math.round(e[1][1]/e[1][0]*100)]))||'<p class="note">Add applied jobs to see this.</p>'};
 const stt=ST.map(s=>[s,n(s)]).filter(r=>r[1]);
-$("ch").innerHTML=`<div class="panel"><h4>Applications per week</h4>${bars(wks)}</div><div class="panel"><h4>By status</h4>${bars(stt)}</div><div class="panel"><h4>Top job sites</h4>${bars(top)}</div><div class="panel"><h4>Reply rate by site (%)</h4>${rate(a=>host(a.l))}</div><div class="panel"><h4>Reply rate by resume version (%)</h4>${rate(a=>(RS()[a.ri||0]||{n:"Main"}).n)}</div>`;
+$("ch").innerHTML=`<div class="panel"><h4>Response rate</h4><div class="ring" style="--p:${rp}"><b>${rp}%</b></div><p class="note" style="text-align:center;margin:0">${resp} of ${tot} heard back</p></div><div class="panel s4"><h4>Applications per week</h4>${vbars(wks)}</div><div class="panel"><h4>By status</h4>${bars(stt)}</div><div class="panel"><h4>Top job sites</h4>${bars(top)}</div><div class="panel"><h4>Reply rate by site (%)</h4>${rate(a=>host(a.l))}</div><div class="panel s3"><h4>Reply rate by resume version (%)</h4>${rate(a=>(RS()[a.ri||0]||{n:"Main"}).n)}</div><div class="panel s3"><h4>Recent activity</h4>${[...A].sort((a,b)=>(b.d||"").localeCompare(a.d||"")).slice(0,5).map(a=>`<div class="rw" data-id="${a.id}"><b>${esc(a.t)}</b><small>${esc(a.c)} ${esc(a.d||"")}</small><span class="tag">${esc(a.s)}</span></div>`).join("")||'<p class="note">Nothing yet.</p>'}</div>`;
 const q=$("q").value.toLowerCase(),f=$("f").value;
 const L=A.filter(a=>(!f||a.s===f)&&(a.t+" "+a.c+" "+(a.n||"")).toLowerCase().includes(q)).sort((a,b)=>b.d.localeCompare(a.d));
 $("vc").setAttribute("aria-pressed",view==="cal");$("vl").setAttribute("aria-pressed",view==="list");$("vb").setAttribute("aria-pressed",view==="board");
@@ -343,4 +406,23 @@ g("auth").hidden=true;g("app").hidden=false;g("who").textContent="Demo";g("demob
 g("demox").addEventListener("click",function(){location.reload()})})();
 </script>
 <script>document.getElementById("addf").addEventListener("click",function(){editJob(null)});</script>
-</body></html>
+<script>
+(function(){
+const TT={ov:"Overview",list:"Applications",board:"Pipeline",cal:"Schedule"},SUB={list:"Newest first. Search, or filter by status.",board:"Drag a card to change its status.",cal:"Interviews and follow-up dates."};
+const tabs=[...document.querySelectorAll(".tabs button")],R0=render;
+function ind(){const a=document.querySelector(".tabs [aria-selected=true]"),i=$("ind");if(a&&i){i.style.width=a.offsetWidth+"px";i.style.transform="translateX("+a.offsetLeft+"px)"}}
+render=function(){document.body.dataset.view=view;R0();tabs.forEach(b=>b.setAttribute("aria-selected",b.dataset.v===view));
+const A=S.apps,fu=A.filter(a=>a.s==="Applied"&&days(a.d)>=14).length;
+$("pt").textContent=TT[view];
+$("ps").textContent=view!=="ov"?SUB[view]:A.length?A.length+(A.length===1?" application":" applications")+" tracked. "+(fu?fu+" need a follow-up.":"Nothing needs a follow-up."):"Nothing tracked yet. Add your first job.";ind()};
+tabs.forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
+addEventListener("resize",ind);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(ind);
+document.querySelectorAll(".dock button").forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(k==="s"){view="list";render();$("q").focus()}else if(k==="r")$("mr").click();else if(k==="c"){view="cal";render()}else $("bk").click()});
+$("hadd").onclick=()=>editJob(null);
+$("ch").onclick=e=>{const r=e.target.closest(".rw");if(r){cur=byId(r.dataset.id);editJob(cur)}};
+const gx=$("glx"),ap=()=>document.documentElement.style.setProperty("--blur",gx.value+"px");
+try{const v=localStorage.getItem("lw.glass");if(v!==null)gx.value=v}catch(e){}
+ap();gx.oninput=()=>{ap();try{localStorage.setItem("lw.glass",gx.value)}catch(e){}};
+if(!$("app").hidden)render();
+})();
+</script></body></html>
