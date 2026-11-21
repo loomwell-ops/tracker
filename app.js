@@ -46,6 +46,8 @@ function bars(rows){const m=Math.max(1,...rows.map(r=>r[1]));return rows.map(r=>
 function card(a){const age=days(a.d),old=a.s==="Applied"&&age>=14,gh=old&&age>=30,dup=S.apps.filter(x=>x.c===a.c).length,due=a.f&&a.f<=today()&&OPEN.includes(a.s);
 return`<div class="card" data-id="${a.id}" data-st="${esc(a.s)}" ${view==="board"?'draggable="true"':""}><div><h3><span class="av">${esc((a.c||"?").trim().charAt(0).toUpperCase())}</span>${esc(a.t)}${a.tr?'<span class="dot" title="Tailored resume saved"></span>':""}${gh?'<span class="tag w">Ghosted? '+age+'d</span>':old?'<span class="tag w">Follow up · '+age+'d</span>':""}${due?'<span class="tag w">Due</span>':""}${dup>1?'<span class="tag">'+dup+' roles here</span>':""}</h3><small>${esc(a.c)} · ${esc(a.d)}${a.p?" · "+esc(a.p):""}${a.k?" · "+esc(a.k):""}</small></div>
 <div class="act"><select data-a="st">${ST.map(s=>`<option${s===a.s?" selected":""}>${s}</option>`).join("")}</select><button class="s p" data-a="tl">Tailor</button><button class="s" data-a="ed">Edit</button>${fixUrl(a.l)?`<a class="note" href="${esc(fixUrl(a.l))}" target="_blank" rel="noopener noreferrer">Link</a>`:""}</div></div>`}
+function dial(rp){const on=Math.round(rp/100*36);let s="";for(let i=0;i<36;i++){const a=(-90+i*10)*Math.PI/180,c=Math.cos(a),n=Math.sin(a);s+='<line x1="'+(72+52*c).toFixed(2)+'" y1="'+(72+52*n).toFixed(2)+'" x2="'+(72+64*c).toFixed(2)+'" y2="'+(72+64*n).toFixed(2)+'" stroke-width="3" stroke-linecap="round"'+(i<on?' class="on" style="--t:'+i+'"':"")+"/>"}
+return'<div class="ring'+(rp>=30?" good":"")+'"><svg viewBox="0 0 144 144" class="tick-dial" aria-hidden="true">'+s+'</svg><b data-n="'+rp+'" data-s="%">'+rp+"%</b></div>"}
 function render(){
 const A=S.apps,n=s=>A.filter(a=>a.s===s).length,tot=A.length;
 const resp=A.filter(a=>["Screening","Interviewing","Assessment","Offer Received","Rejected"].includes(a.s)).length;
@@ -276,8 +278,6 @@ if(!a||!a.offsetHeight){p.style.opacity="0";return}p.style.opacity="1";const x=a
 if(animate===true&&!reduced()&&from&&p.animate&&(from.y!==y||from.h!==h)){const sy=Math.min(y,from.y),sh=h+Math.abs(y-from.y);p.getAnimations().forEach(n=>n.cancel());
 p.animate([{transform:T(from.y),height:from.h+"px",easing:"cubic-bezier(.2,.9,.3,1)"},{offset:.38,transform:T(sy),height:sh+"px",easing:"cubic-bezier(.34,1.45,.64,1)"},{transform:T(y),height:h+"px"}],{duration:480})}
 dockPos={y,h}}
-function dial(rp){const on=Math.round(rp/100*36);let s="";for(let i=0;i<36;i++){const a=(-90+i*10)*Math.PI/180,c=Math.cos(a),n=Math.sin(a);s+='<line x1="'+(72+52*c).toFixed(2)+'" y1="'+(72+52*n).toFixed(2)+'" x2="'+(72+64*c).toFixed(2)+'" y2="'+(72+64*n).toFixed(2)+'" stroke-width="3" stroke-linecap="round"'+(i<on?' class="on" style="--t:'+i+'"':"")+"/>"}
-return'<div class="ring'+(rp>=30?" good":"")+'"><svg viewBox="0 0 144 144" class="tick-dial" aria-hidden="true">'+s+'</svg><b data-n="'+rp+'" data-s="%">'+rp+"%</b></div>"}
 render=function(){document.body.dataset.view=view;R0();tabs.forEach(b=>b.setAttribute("aria-selected",b.dataset.v===view));
 const A=S.apps,fu=A.filter(a=>a.s==="Applied"&&days(a.d)>=14).length;
 $("pt").textContent=TT[view];
