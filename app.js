@@ -1,5 +1,5 @@
 
-const CFG={SUPABASE_URL:"https://ywowmewfdaalgoqrimyj.supabase.co",SUPABASE_ANON_KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3b3dtZXdmZGFhbGdvcXJpbXlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4ODk4NjAsImV4cCI6MjExMDQ2NTg2MH0.KXXW61f05PyTD-9Jixl9xJNtvqdXrnnuxB2nEf5V4b0",AI_URL:"https://loomwellops-ai.loomwellops.workers.dev"};
+const CFG={SUPABASE_URL:"https://ywowmewfdaalgoqrimyj.supabase.co",SUPABASE_ANON_KEY:"PASTE_YOUR_sb_publishable_KEY_HERE",AI_URL:"https://loomwellops-ai.loomwellops.workers.dev"};
 function fixUrl(u){u=String(u||"").trim().replace(/\s+/g,"");if(!u)return"";if(/^[a-z][a-z0-9+.-]*:/i.test(u))return/^https?:/i.test(u)?u:"";return/^[\w-]+(\.[\w-]+)+/.test(u)?"https://"+u.replace(/^\/+/,""):""}
 const ST=["To Apply","Applied","Screening","Interviewing","Assessment","Offer Received","Rejected","Ghosted","Withdrawn"];
 const OPEN=["To Apply","Applied","Screening","Interviewing","Assessment"];
