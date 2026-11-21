@@ -18,7 +18,7 @@ Never commit `PRIVATE-*` files. They hold your applications.
 4. Put the Worker URL in `CFG.AI_URL` in `app.js`.
 
 ## 3. Publish
-Upload everything except `PRIVATE-*`, then Settings > Pages. After changing `style.css` or `app.js`, bump `?v=2` in `index.html` so browsers reload them.
+Upload everything except `PRIVATE-*`, then Settings > Pages. After changing `style.css` or `app.js`, bump `?v=4` (and so on) in `index.html` so browsers reload them.
 
 ## 4. Before selling
 Fill in your name and email in `privacy.html` and `terms.html`, get them reviewed, add payments and gate the AI by plan, and register the trademark (use ™ until registered).

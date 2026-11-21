@@ -18,7 +18,15 @@ if(window.claude){claude.use("sample").then(x=>sample=x).catch(()=>{});claude.us
 const days=d=>Math.floor((Date.now()-new Date(d+"T00:00:00"))/864e5);
 const host=l=>{try{const h=new URL(fixUrl(l)).hostname.split(".");return h[h.length-2]||"other"}catch(e){return"other"}};
 $("f").innerHTML='<option value="">All statuses</option>'+ST.map(s=>`<option>${s}</option>`).join("");
-$("th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark"};
+const reduced=()=>matchMedia("(prefers-reduced-motion:reduce)").matches;
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==="dark":matchMedia("(prefers-color-scheme:dark)").matches};
+const SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',MOON='<path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/>';
+const paintTheme=()=>{const i=$("thIcon");if(i)i.innerHTML=isDark()?SUN:MOON};paintTheme();
+$("th").onclick=()=>{const r=document.documentElement,next=isDark()?"light":"dark",apply=()=>{r.dataset.theme=next;try{localStorage.setItem("lw.theme",next)}catch(e){}paintTheme()};
+if(!document.startViewTransition||reduced()){apply();return}
+const b=$("th").getBoundingClientRect(),x=b.left+b.width/2,y=b.top+b.height/2,R=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
+const vt=document.startViewTransition(apply);
+vt.ready.then(()=>r.animate({clipPath:["circle(0px at "+x+"px "+y+"px)","circle("+R+"px at "+x+"px "+y+"px)"]},{duration:480,easing:"cubic-bezier(.22,1,.36,1)",pseudoElement:"::view-transition-new(root)"})).catch(()=>{})};
 let rng=30,prev="",lastSync=null;
 function snap(t){prev=JSON.stringify(S.apps);const m=$("msg");m.innerHTML=esc(t)+' <button class="s" id="undo">Undo</button>';$("undo").onclick=()=>{S.apps=JSON.parse(prev);save();render();m.textContent=""};setTimeout(()=>{if($("undo"))m.textContent=""},7000)}
 function line(r){const n=r===90?13:r,sz=r===90?7:1,v=[],w=[],RPL=["Screening","Interviewing","Assessment","Offer Received","Rejected"];
@@ -52,7 +60,7 @@ const top=Object.entries(src).sort((a,b)=>b[1]-a[1]).slice(0,5);
 const RP=["Screening","Interviewing","Assessment","Offer Received","Rejected"];
 const rate=g=>{const m={};A.filter(a=>a.s!=="To Apply").forEach(a=>{const k=g(a);(m[k]=m[k]||[0,0]);m[k][0]++;if(RP.includes(a.s))m[k][1]++});return bars(Object.entries(m).filter(e=>e[1][0]).sort((x,y)=>y[1][0]-x[1][0]).slice(0,5).map(e=>[e[0]+" ("+e[1][1]+"/"+e[1][0]+")",Math.round(e[1][1]/e[1][0]*100)]))||'<p class="note">Add applied jobs to see this.</p>'};
 const stt=ST.map(s=>[s,n(s)]).filter(r=>r[1]);
-$("ch").innerHTML=`${hero}<div class="panel s4"><h4>Applications over time</h4><div class="rg">${[[7,"Week"],[30,"Month"],[90,"Quarter"]].map(x=>`<button class="s" data-r="${x[0]}" aria-pressed="${rng===x[0]}">${x[1]}</button>`).join("")}</div><div class="lgd"><span><i></i>Applied<b>${tot}</b></span><span class="b"><i></i>Heard back<b>${resp}</b></span></div>${line(rng)}</div>${dueP}<div class="panel"><h4>Response rate</h4><div class="ring" style="--p:${rp}"><b data-n="${rp}" data-s="%">${rp}%</b></div><div class="lg"><span>Heard back</span><b>${resp}</b></div><div class="lg"><span>Waiting</span><b>${tot-resp}</b></div></div><div class="panel"><h4>By status</h4>${bars(stt)}</div><div class="panel"><h4>Top job sites</h4>${bars(top)}</div><div class="panel s3"><h4>Reply rate by site (%)</h4>${rate(a=>host(a.l))}</div><div class="panel s3"><h4>Reply rate by resume version (%)</h4>${rate(a=>(RS()[a.ri||0]||{n:"Main"}).n)}</div><div class="panel s6"><h4>Recent activity</h4>${[...A].sort((a,b)=>(b.d||"").localeCompare(a.d||"")).slice(0,5).map(a=>`<div class="rw" data-id="${a.id}"><b>${esc(a.t)}</b><small>${esc(a.c)} ${esc(a.d||"")}</small><span class="tag">${esc(a.s)}</span></div>`).join("")||'<p class="note">Nothing yet.</p>'}</div>`;
+$("ch").innerHTML=`${hero}<div class="panel s4"><h4>Applications over time</h4><div class="rg">${[[7,"Week"],[30,"Month"],[90,"Quarter"]].map(x=>`<button class="s" data-r="${x[0]}" aria-pressed="${rng===x[0]}">${x[1]}</button>`).join("")}</div><div class="lgd"><span><i></i>Applied<b>${tot}</b></span><span class="b"><i></i>Heard back<b>${resp}</b></span></div>${line(rng)}</div>${dueP}<div class="panel"><h4>Response rate</h4>${dial(rp)}<div class="lg"><span>Heard back</span><b>${resp}</b></div><div class="lg"><span>Waiting</span><b>${tot-resp}</b></div></div><div class="panel"><h4>By status</h4>${bars(stt)}</div><div class="panel"><h4>Top job sites</h4>${bars(top)}</div><div class="panel s3"><h4>Reply rate by site (%)</h4>${rate(a=>host(a.l))}</div><div class="panel s3"><h4>Reply rate by resume version (%)</h4>${rate(a=>(RS()[a.ri||0]||{n:"Main"}).n)}</div><div class="panel s6"><h4>Recent activity</h4>${[...A].sort((a,b)=>(b.d||"").localeCompare(a.d||"")).slice(0,5).map(a=>`<div class="rw" data-id="${a.id}"><b>${esc(a.t)}</b><small>${esc(a.c)} ${esc(a.d||"")}</small><span class="tag">${esc(a.s)}</span></div>`).join("")||'<p class="note">Nothing yet.</p>'}</div>`;
 const q=$("q").value.toLowerCase(),f=$("f").value;
 const L=A.filter(a=>(!f||a.s===f)&&(a.t+" "+a.c+" "+(a.n||"")).toLowerCase().includes(q)).sort((a,b)=>b.d.localeCompare(a.d));
 $("vc").setAttribute("aria-pressed",view==="cal");$("vl").setAttribute("aria-pressed",view==="list");$("vb").setAttribute("aria-pressed",view==="board");
@@ -66,9 +74,10 @@ $("vl").onclick=()=>{view="list";render()};$("vb").onclick=()=>{view="board";ren
 const byId=id=>S.apps.find(x=>x.id===id);
 $("list").onchange=e=>{if(e.target.dataset.a!=="st")return;snap("Status changed.");byId(e.target.closest(".card").dataset.id).s=e.target.value;save();render()};
 $("list").onclick=e=>{const b=e.target.closest("button");const c=b&&b.closest(".card");if(!c)return;cur=byId(c.dataset.id);b.dataset.a==="ed"?editJob(cur):openTailor(cur)};
-$("list").ondragstart=e=>{const c=e.target.closest(".card");if(c)e.dataTransfer.setData("text",c.dataset.id)};
+$("list").ondragstart=e=>{const c=e.target.closest(".card");if(c){e.dataTransfer.setData("text",c.dataset.id);setTimeout(()=>c.classList.add("dragging"),0)}};
+const clrDrag=()=>document.querySelectorAll(".card.dragging,.col.over").forEach(x=>x.classList.remove("dragging","over"));document.addEventListener("dragend",clrDrag);let lastDroppedId=null;
 $("list").ondragover=e=>{const c=e.target.closest(".col");if(c){e.preventDefault();document.querySelectorAll(".col.over").forEach(x=>x.classList.remove("over"));c.classList.add("over")}};
-$("list").ondrop=e=>{const c=e.target.closest(".col");if(!c)return;e.preventDefault();const a=byId(e.dataTransfer.getData("text"));if(a){snap("Moved to "+c.dataset.s+".");a.s=c.dataset.s;save();render()}};
+$("list").ondrop=e=>{const c=e.target.closest(".col");if(!c)return;e.preventDefault();const a=byId(e.dataTransfer.getData("text"));clrDrag();if(a){snap("Moved to "+c.dataset.s+".");a.s=c.dataset.s;lastDroppedId=a.id;save();render();const el=document.querySelector('.card[data-id="'+CSS.escape(String(lastDroppedId))+'"]');lastDroppedId=null;if(el&&!reduced()){el.classList.add("landed");setTimeout(()=>el.classList.remove("landed"),500)}}};
 function editJob(a){cur=a;$("djt").textContent=a?"Edit job":"Add job";[["jt","t"],["jc","c"],["jp","p"],["jl","l"],["jk","k"],["jn","n"],["jf","f"],["ji","i"],["jlg","lg"]].forEach(p=>$(p[0]).value=a?.[p[1]]||"");pendJd="";$("jam").textContent="";
 $("jd").value=a?.d||today();$("jdel").hidden=!a;$("jdel").textContent="Delete";$("dj").showModal()}
 $("jla").onclick=()=>{const t=$("jlg").value;$("jlg").value=today()+": \n"+t;$("jlg").focus();$("jlg").setSelectionRange(12,12)};
@@ -257,13 +266,24 @@ const em=(U&&U.email)||"Demo";$("who").dataset.i=em[0].toUpperCase();
 $("gr").textContent=view==="ov"?"Welcome back, "+em.split("@")[0]:"";$("mo").textContent=new Date().toLocaleDateString("en",{month:"long",year:"numeric"})}
 function countUp(){if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;document.querySelectorAll("[data-n]").forEach(el=>{const n=+el.dataset.n,s=el.dataset.s||"",t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/800);el.textContent=Math.round(n*(1-Math.pow(1-p,3)))+s;if(p<1)requestAnimationFrame(f)})(t0)})}
 const tabs=[...document.querySelectorAll(".tabs button")],R0=render;
-function ind(){const a=document.querySelector(".tabs [aria-selected=true]"),i=$("ind");if(a&&i){i.style.width=a.offsetWidth+"px";i.style.transform="translateX("+a.offsetLeft+"px)"}}
+let pv=null,tabPos=null,dockPos=null;
+function ind(animate){const a=document.querySelector(".tabs [aria-selected=true]"),i=$("ind");if(!a||!i)return;const x=a.offsetLeft,w=a.offsetWidth,from=tabPos;i.style.width=w+"px";i.style.transform="translateX("+x+"px)";
+if(animate===true&&!reduced()&&from&&i.animate&&(from.x!==x||from.w!==w)){const sx=Math.min(x,from.x),sw=Math.max(x+w,from.x+from.w)-sx;i.getAnimations().forEach(n=>n.cancel());
+i.animate([{transform:"translateX("+from.x+"px)",width:from.w+"px",easing:"cubic-bezier(.2,.9,.3,1)"},{offset:.38,transform:"translateX("+sx+"px)",width:sw+"px",easing:"cubic-bezier(.34,1.45,.64,1)"},{transform:"translateX("+x+"px)",width:w+"px"}],{duration:440})}
+tabPos={x,w}}
+function moveDock(animate){const p=$("dockPill"),a=document.querySelector('.dock [data-v][aria-current="true"]');if(!p)return;
+if(!a||!a.offsetHeight){p.style.opacity="0";return}p.style.opacity="1";const x=a.offsetLeft,y=a.offsetTop,h=a.offsetHeight,from=dockPos,T=v=>"translate("+x+"px,"+v+"px)";p.style.height=h+"px";p.style.transform=T(y);
+if(animate===true&&!reduced()&&from&&p.animate&&(from.y!==y||from.h!==h)){const sy=Math.min(y,from.y),sh=h+Math.abs(y-from.y);p.getAnimations().forEach(n=>n.cancel());
+p.animate([{transform:T(from.y),height:from.h+"px",easing:"cubic-bezier(.2,.9,.3,1)"},{offset:.38,transform:T(sy),height:sh+"px",easing:"cubic-bezier(.34,1.45,.64,1)"},{transform:T(y),height:h+"px"}],{duration:480})}
+dockPos={y,h}}
+function dial(rp){const on=Math.round(rp/100*36);let s="";for(let i=0;i<36;i++){const a=(-90+i*10)*Math.PI/180,c=Math.cos(a),n=Math.sin(a);s+='<line x1="'+(72+52*c).toFixed(2)+'" y1="'+(72+52*n).toFixed(2)+'" x2="'+(72+64*c).toFixed(2)+'" y2="'+(72+64*n).toFixed(2)+'" stroke-width="3" stroke-linecap="round"'+(i<on?' class="on" style="--t:'+i+'"':"")+"/>"}
+return'<div class="ring'+(rp>=30?" good":"")+'"><svg viewBox="0 0 144 144" class="tick-dial" aria-hidden="true">'+s+'</svg><b data-n="'+rp+'" data-s="%">'+rp+"%</b></div>"}
 render=function(){document.body.dataset.view=view;R0();tabs.forEach(b=>b.setAttribute("aria-selected",b.dataset.v===view));
 const A=S.apps,fu=A.filter(a=>a.s==="Applied"&&days(a.d)>=14).length;
 $("pt").textContent=TT[view];
-$("ps").textContent=view!=="ov"?SUB[view]:A.length?A.length+(A.length===1?" application":" applications")+" tracked. "+(fu?fu+" need a follow-up.":"Nothing needs a follow-up."):"Nothing tracked yet. Add your first job.";if(view==="ov"&&!A.length)$("ch").innerHTML=EMPTY;fx(A,fu);ind()};
+$("ps").textContent=view!=="ov"?SUB[view]:A.length?A.length+(A.length===1?" application":" applications")+" tracked. "+(fu?fu+" need a follow-up.":"Nothing needs a follow-up."):"Nothing tracked yet. Add your first job.";if(view==="ov"&&!A.length)$("ch").innerHTML=EMPTY;fx(A,fu);const chg=pv!==null&&pv!==view;pv=view;ind(chg);moveDock(chg)};
 tabs.forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
-addEventListener("resize",ind);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(ind);
+const reflow=()=>{ind(false);moveDock(false)};addEventListener("resize",reflow);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(reflow);
 document.querySelectorAll(".dock button").forEach(b=>b.onclick=()=>{if(b.dataset.v){view=b.dataset.v;render();return}const k=b.dataset.k;if(k==="s"){view="list";render();$("q").focus()}else if(k==="r")$("mr").click();else if(k==="c"){view="cal";render()}else $("bk").click()});
 $("hadd").onclick=()=>editJob(null);
 $("ch").onclick=e=>{const b=e.target.closest("button"),r=e.target.closest(".rw");
