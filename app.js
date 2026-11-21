@@ -1,5 +1,5 @@
 
-const CFG={SUPABASE_URL:"https://ywowmewfdaalgoqrimyj.supabase.co",SUPABASE_ANON_KEY:"PASTE_YOUR_sb_publishable_KEY_HERE",AI_URL:"https://loomwellops-ai.loomwellops.workers.dev"};
+const CFG={SUPABASE_URL:"https://ywowmewfdaalgoqrimyj.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_HTUimyhAPgnAePX_9Ami9A_x76Llkb_",AI_URL:"https://loomwellops-ai.loomwellops.workers.dev"};
 function fixUrl(u){u=String(u||"").trim().replace(/\s+/g,"");if(!u)return"";if(/^[a-z][a-z0-9+.-]*:/i.test(u))return/^https?:/i.test(u)?u:"";return/^[\w-]+(\.[\w-]+)+/.test(u)?"https://"+u.replace(/^\/+/,""):""}
 const ST=["To Apply","Applied","Screening","Interviewing","Assessment","Offer Received","Rejected","Ghosted","Withdrawn"];
 const OPEN=["To Apply","Applied","Screening","Interviewing","Assessment"];
