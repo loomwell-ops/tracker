@@ -6,13 +6,14 @@
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#4b3fd6"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="description" content="LoomwellOps™ Job Tracker: track applications, tailor resumes and write cover letters."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%234b3fd6%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2750%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27 font-weight=%27bold%27%3ELW%3C/text%3E%3C/svg%3E"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4"></head><body><div class="bg" aria-hidden="true"></div><main>
+<link rel="stylesheet" href="style.css?v=5"></head><body><div class="bg" aria-hidden="true"></div><main>
 <header class="top"><span class="brand"><i>LW</i><b>LoomwellOps™</b></span>
 <div class="tabs" role="tablist" aria-label="Views"><i id="ind"></i><button type="button" role="tab" data-v="ov"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Overview</button><button type="button" role="tab" data-v="list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Applications<em id="bl"></em></button><button type="button" role="tab" data-v="board"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="16" rx="2"/><rect x="14" y="4" width="6" height="10" rx="2"/></svg>Pipeline</button><button type="button" role="tab" data-v="cal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Schedule<em id="bc"></em></button></div>
 <div class="tr"><label class="gs">Glass <input type="range" id="glx" min="0" max="36" value="18" aria-label="Adjust glass blur"></label><span class="note" id="who"></span><button id="so" class="s" hidden>Sign out</button><button id="th" class="s" type="button" aria-label="Toggle theme" title="Toggle theme"><svg id="thIcon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"></svg></button></div></header>
 <section id="auth" hidden><div class="panel"><h2>Welcome to LoomwellOps™</h2><p class="note">Sign in to track your job applications, tailor resumes and write cover letters. Your data is saved to your account.</p>
 <label>Email</label><input id="ae" type="email" autocomplete="email" style="width:100%">
 <label>Password (8+ characters)</label><input id="ap" type="password" autocomplete="current-password" style="width:100%">
+<label>Confirm password (only when creating an account)</label><input id="ap2" type="password" autocomplete="new-password" style="width:100%">
 <label class="note" style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="spw"> Show password</label>
 <div class="row"><button class="p" id="ain">Sign in</button><button id="aup">Create account</button><button class="s" id="afg">Forgot password</button><button type="button" id="demo">Try the demo</button></div><p class="note" id="am" role="status"></p><p class="note">New here? The demo shows sample data. Nothing is saved and the AI tools are off.</p></div></section>
 <div id="demobar" hidden role="status">Demo mode: sample data only, nothing is saved, and the AI tools are off. <button type="button" id="demox">Exit demo</button></div>
@@ -22,7 +23,7 @@
 <div class="stats" id="stats"></div>
 <div class="charts" id="ch"></div>
 <div class="bar tools">
-<input type="search" id="q" placeholder="Search title, company or notes"><select id="f"></select>
+<input type="search" id="q" placeholder="Search title, company or notes"><select id="f"></select><select id="sk" aria-label="Sort applications"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="co">Company A-Z</option><option value="st">By status</option></select>
 <button id="vl" aria-pressed="true" hidden>List</button><button id="vb" aria-pressed="false" hidden>Board</button><button id="vc" aria-pressed="false" hidden>Calendar</button>
 <button class="p" id="add">+ Add job</button><button id="mr">Master resume</button>
 </div>
@@ -30,9 +31,11 @@
 <div id="list"></div>
 
 </div>
+<dialog id="dpw"><h3>Set a new password</h3><label>New password (8+ characters)</label><input id="np" type="password" autocomplete="new-password" style="width:100%"><p class="note" id="npm" role="status"></p><div class="row"><button class="p" id="nps">Save password</button><button id="npx">Cancel</button></div></dialog>
 <dialog id="dj"><h3 id="djt">Add job</h3>
 <label>Job title</label><input id="jt" style="width:100%">
 <label>Company</label><input id="jc" style="width:100%">
+<label>Status</label><select id="jst" style="width:100%"></select>
 <div class="row"><div><label>Pay (optional)</label><input id="jp"></div><div><label>Date applied</label><input id="jd" type="date"></div><div><label>Follow up on</label><input id="jf" type="date"></div></div>
 <label>Posting link</label><div class="row"><input id="jl" style="flex:1;min-width:0"><button type="button" id="jaf">Auto-fill from link</button></div><span class="note" id="jam"></span>
 <label>Contact person / recruiter</label><input id="jk" style="width:100%">
@@ -61,4 +64,4 @@
 
 
 
-<script src="app.js?v=6" defer></script></body></html>
+<script src="app.js?v=7" defer></script></body></html>
