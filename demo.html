@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LoomwellOps™ Job Tracker (Live Demo)</title>
+<script>try{var t=localStorage.getItem('lw.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#4b3fd6"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="robots" content="noindex"><meta name="description" content="LoomwellOps™ Job Tracker: track applications, tailor resumes and write cover letters."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%234b3fd6%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2750%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27 font-weight=%27bold%27%3ELW%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5"></head><body><div class="bg" aria-hidden="true"></div><main>
+<header class="top"><span class="brand"><i>LW</i><b>LoomwellOps™</b></span>
+<div class="tabs" role="tablist" aria-label="Views"><i id="ind"></i><button type="button" role="tab" data-v="ov"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Overview</button><button type="button" role="tab" data-v="list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Applications<em id="bl"></em></button><button type="button" role="tab" data-v="board"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="16" rx="2"/><rect x="14" y="4" width="6" height="10" rx="2"/></svg>Pipeline</button><button type="button" role="tab" data-v="cal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Schedule<em id="bc"></em></button></div>
+<div class="tr"><label class="gs">Glass <input type="range" id="glx" min="0" max="36" value="18" aria-label="Adjust glass blur"></label><span class="note" id="who"></span><button id="so" class="s" hidden>Sign out</button><button id="th" class="s" type="button" aria-label="Toggle theme" title="Toggle theme"><svg id="thIcon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"></svg></button></div></header>
+<section id="auth" hidden><div class="panel"><h2>Welcome to LoomwellOps™</h2><p class="note">Sign in to track your job applications, tailor resumes and write cover letters. Your data is saved to your account.</p>
+<label>Email</label><input id="ae" type="email" autocomplete="email" style="width:100%">
+<label>Password (8+ characters)</label><input id="ap" type="password" autocomplete="current-password" style="width:100%">
+<label>Confirm password (only when creating an account)</label><input id="ap2" type="password" autocomplete="new-password" style="width:100%">
+<label class="note" style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="spw"> Show password</label>
+<div class="row"><button class="p" id="ain">Sign in</button><button id="aup">Create account</button><button class="s" id="afg">Forgot password</button><button type="button" id="demo">Try the demo</button></div><p class="note" id="am" role="status"></p><p class="note">New here? The demo shows sample data. Nothing is saved and the AI tools are off.</p></div></section>
+<div id="demobar" hidden role="status">Live demo: sample data only. Nothing is saved, and sign-in and the AI tools are turned off. <button type="button" id="demox">Reset demo</button></div>
+<div id="app">
+<button type="button" id="addf" class="p">+ Add job</button><aside class="dock" aria-label="Views and tools"><i id="dockPill" aria-hidden="true"></i><button type="button" data-v="ov" data-tip="Overview" aria-label="Overview"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg></button><button type="button" data-v="list" data-tip="Applications" aria-label="Applications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></button><button type="button" data-v="board" data-tip="Pipeline" aria-label="Pipeline"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="16" rx="2"/><rect x="14" y="4" width="6" height="10" rx="2"/></svg></button><button type="button" data-v="cal" data-tip="Schedule" aria-label="Schedule"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button><hr><button type="button" data-k="s" data-tip="Search" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.3-4.3"/></svg></button><button type="button" data-k="r" data-tip="Master resume" aria-label="Master resume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg></button><button type="button" data-k="b" data-tip="Download backup" aria-label="Download backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14"/></svg></button></aside>
+<div class="hd"><div><p class="note" id="gr"></p><h1 id="pt">Overview</h1><p class="note" id="ps"></p></div><div class="hr"><span class="note" id="mo"></span><button type="button" class="p" id="hadd">+ Add job</button></div></div>
+<div class="stats" id="stats"></div>
+<div class="charts" id="ch"></div>
+<div class="bar tools">
+<input type="search" id="q" placeholder="Search title, company or notes"><select id="f"></select><select id="sk" aria-label="Sort applications"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="co">Company A-Z</option><option value="st">By status</option></select>
+<button id="vl" aria-pressed="true" hidden>List</button><button id="vb" aria-pressed="false" hidden>Board</button><button id="vc" aria-pressed="false" hidden>Calendar</button>
+<button class="p" id="add">+ Add job</button><button id="mr">Master resume</button>
+</div>
+<div class="bar"><button id="bk" class="s">Backup (JSON)</button><button id="cv" class="s">Export CSV</button><button id="im" class="s">Import backup</button><button id="dd" class="s" hidden>Delete my cloud data</button><input type="file" id="fi" accept=".json" hidden><span class="note" id="msg"></span></div>
+<div id="list"></div>
+
+</div>
+<dialog id="dpw"><h3>Set a new password</h3><label>New password (8+ characters)</label><input id="np" type="password" autocomplete="new-password" style="width:100%"><p class="note" id="npm" role="status"></p><div class="row"><button class="p" id="nps">Save password</button><button id="npx">Cancel</button></div></dialog>
+<dialog id="dj"><h3 id="djt">Add job</h3>
+<label>Job title</label><input id="jt" style="width:100%">
+<label>Company</label><input id="jc" style="width:100%">
+<label>Status</label><select id="jst" style="width:100%"></select>
+<div class="row"><div><label>Pay (optional)</label><input id="jp"></div><div><label>Date applied</label><input id="jd" type="date"></div><div><label>Follow up on</label><input id="jf" type="date"></div></div>
+<label>Posting link</label><div class="row"><input id="jl" style="flex:1;min-width:0"><button type="button" id="jaf">Auto-fill from link</button></div><span class="note" id="jam"></span>
+<label>Contact person / recruiter</label><input id="jk" style="width:100%">
+<label>Interview date and time (shows in Calendar)</label><input id="ji" type="datetime-local">
+<label>Contact log (who you spoke to, what was said)</label><textarea id="jlg" rows="4"></textarea><div class="row"><button type="button" id="jla">+ Add dated entry</button></div>
+<label>Notes, next steps, interview prep</label><textarea id="jn" rows="4"></textarea>
+<div class="row"><button class="p" id="js">Save</button><button id="jx">Cancel</button><button id="jdel" hidden>Delete</button></div></dialog>
+
+<dialog id="dr"><h3>Master resume</h3>
+<div class="row"><select id="rsel"></select><input id="rnm" placeholder="Version name"><button type="button" id="rnw">New version</button><button type="button" id="rdl">Delete</button></div>
+<p class="note">Paste your full resume once with every role, skill and achievement, or drop a PDF, Word (.docx), or text file onto the box. Tailored versions only use what is written here. Saved to your account and this browser. Files are read in your browser and are not uploaded; only the text you keep here is saved.</p>
+<textarea id="rt" rows="16"></textarea>
+<div class="row"><button type="button" id="rf">Choose a file</button><input type="file" id="rff" accept=".pdf,.docx,.txt,.md" hidden><span class="note" id="rst" aria-live="polite"></span></div>
+<div class="row"><button class="p" id="rs">Save</button><button id="rx">Close</button></div></dialog>
+
+<dialog id="dt"><h3 id="dtt">Tailor</h3>
+<label>Job description (paste the full posting)</label><textarea id="td" rows="6"></textarea>
+<div class="row"><button class="p" id="tg">Tailor resume</button><button class="p" id="tl">Write cover letter</button><button id="ts" disabled>Stop</button><span class="note" id="tn"></span></div>
+<label>Master resume to use</label><select id="tsel"></select>
+<label>Tailored resume (editable)</label><textarea id="to" rows="12"></textarea>
+<label>Notes: keywords matched, gaps, talking points (private, not part of the resume)</label><textarea id="tnt" rows="7"></textarea>
+<label>Extras</label><div class="row"><select id="xk"><option value="m">Match score + missing keywords</option><option value="i">Interview prep</option><option value="f">Follow-up email (no reply)</option><option value="t">Thank-you email (after interview)</option><option value="r">Reply to a rejection</option></select><button class="p" id="xg">Generate</button></div><textarea id="xo" rows="8"></textarea>
+<label>Cover letter (editable)</label><textarea id="cl" rows="9"></textarea>
+<div class="row"><button class="s" id="c1">Copy resume</button><button class="s" id="c2">Copy letter</button><button class="s" id="d1">Download resume</button><button class="s" id="d2">Download letter</button><button class="s p" id="dw">Download Word</button><button class="s p" id="dp">Download PDF</button><button class="p" id="tsv">Save to job</button><button id="tx">Close</button></div></dialog>
+<footer class="note">© 2026 LoomwellOps™. Your data is private to your account. <span id="sy"></span> <a href="privacy.html">Privacy</a> <a href="terms.html">Terms</a> Shortcuts: N adds a job, / searches, paste a link to add it.</footer></main>
+
+
+
+<script src="demo.js?v=5f3de3b4" defer></script></body></html>
